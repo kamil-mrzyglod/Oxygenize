@@ -37,5 +37,19 @@ namespace Oxygenize.Test
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.GetType() == typeof(NullablePrimitiveTypes));
         }
+
+        [Test]
+        public void Should_Create_Instance_Of_Given_Value_Type()
+        {
+            var instance = Oxygenize.For<ValueTypes>()
+                            .WithStrategy(GenerationStrategy.Mixed)
+                            .Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance.DateTime);
+            Assert.IsNotNull(instance.Guid);
+            Assert.IsNotNull(instance.TimeSpan);
+            Assert.IsTrue(instance.GetType() == typeof(ValueTypes));
+        }
     }
 }

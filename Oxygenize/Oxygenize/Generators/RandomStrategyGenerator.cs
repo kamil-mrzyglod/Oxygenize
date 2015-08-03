@@ -19,12 +19,19 @@ namespace Oxygenize.Generators
                 {
                     SetPrimitiveValue(property);
                 }
-
-                var nullableType = Nullable.GetUnderlyingType(property.PropertyType);
-                if (nullableType != null)
+                else
                 {
-                    SetNullableValue(property);
-                }
+                    var nullableType = Nullable.GetUnderlyingType(property.PropertyType);
+                    if (nullableType != null)
+                    {
+                        SetNullableValue(property);
+                    }
+
+                    if (property.PropertyType.IsValueType)
+                    {
+                        SetValueType(property);
+                    }
+                }           
             }
         }
 
@@ -89,6 +96,32 @@ namespace Oxygenize.Generators
                     var longBytes = new byte[8];
                     randomizer.NextBytes(longBytes);
                     value = BitConverter.ToUInt64(longBytes, 0);
+                    break;
+                default:
+                    value = new object();
+                    break;
+            }
+
+            property.SetValue(Instance, value);
+        }
+
+        public void SetValueType(PropertyInfo property)
+        {
+            var randomizer = new Randomizer().Instance;
+
+            object value;
+            switch (property.PropertyType.ToString())
+            {
+                case "System.DateTime":
+                    var range = DateTime.MaxValue - DateTime.MinValue;
+                    var randTimeSpan = new TimeSpan((long)(randomizer.NextDouble() * range.Ticks));
+                    value = DateTime.MinValue + randTimeSpan;
+                    break;
+                case "System.Guid":
+                    value = Guid.NewGuid();
+                    break;
+                case "System.TimeSpan":
+                    value = new TimeSpan(randomizer.Next());
                     break;
                 default:
                     value = new object();

@@ -74,6 +74,7 @@
     <Compile Include="OxygenizeTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PrimitiveTypes.cs" />
+    <Compile Include="ValueTypes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
