@@ -1,4 +1,6 @@
-﻿namespace Oxygenize
+﻿using System;
+
+namespace Oxygenize
 {
     public class Oxygenize
     {
@@ -10,7 +12,12 @@
 
     public class Oxygenize<T>
     {
-        private GenerationStrategy _strategy;
+        private GenerationStrategy _strategy = GenerationStrategy.Random;
+
+        public T Instance
+        {
+            get { return Activator.CreateInstance<T>(); }
+        }
 
         /// <summary>
         /// Sets the strategy used for data generation

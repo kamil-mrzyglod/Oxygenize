@@ -1,2 +1,6 @@
 *.suo
 Oxygenize/Oxygenize/obj/
+Oxygenize/packages/
+Oxygenize.Test/obj/
+Oxygenize.Test/bin/
+Oxygenize/Oxygenize/bin/
