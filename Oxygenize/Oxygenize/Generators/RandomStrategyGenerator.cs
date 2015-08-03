@@ -1,0 +1,86 @@
+﻿using System;
+using System.Reflection;
+
+namespace Oxygenize.Generators
+{
+    class RandomStrategyGenerator<T> : GeneratorBase<T> where T : new()
+    {
+        protected override T Generate()
+        {
+            SetProperties();
+            return Instance;
+        }
+
+        protected override void SetProperties()
+        {
+            foreach (var property in Type.GetProperties())
+            {
+                if (property.PropertyType.IsPrimitive)
+                {
+                    SetPrimitiveValue(property);
+                }
+            }
+        }
+
+        private void SetPrimitiveValue(PropertyInfo property)
+        {
+            var randomizer = new Randomizer().Instance;
+
+            object value;
+            switch (property.PropertyType.ToString())
+            {
+                case "System.Boolean":
+                    value = randomizer.NextDouble() < 0.5;
+                    break;
+                case "System.Byte":
+                    var @byte = new byte[1];
+                    randomizer.NextBytes(@byte);
+                    value = @byte[0];
+                    break;
+                case "System.Char":
+                    value = Chars[randomizer.Next(0, Chars.Length - 1)];
+                    break;
+                case "System.Double":
+                    value = randomizer.NextDouble();
+                    break;
+                case "System.Int32":
+                    value = randomizer.Next();
+                    break;
+                case "System.Int64":
+                    value = (long)randomizer.Next();
+                    break;
+                case "System.SByte":
+                    var @sbyte = new byte[1];
+                    randomizer.NextBytes(@sbyte);
+                    value = (sbyte)@sbyte[0];
+                    break;
+                case "System.Int16":
+                    value = (short)randomizer.Next(1 << 16);
+                    break;
+                case "System.Single":
+                    value = (float)randomizer.Next(1 << 32);
+                    break;
+                case "System.UInt16":
+                    var shortBytes = new byte[2];
+                    randomizer.NextBytes(shortBytes);
+                    value = BitConverter.ToUInt16(shortBytes, 0);
+                    break;
+                case "System.UInt32":
+                    var bytes = new byte[4];
+                    randomizer.NextBytes(bytes);
+                    value = BitConverter.ToUInt32(bytes, 0);
+                    break;
+                case "System.UInt64":
+                    var longBytes = new byte[8];
+                    randomizer.NextBytes(longBytes);
+                    value = BitConverter.ToUInt64(longBytes, 0);
+                    break;
+                default:
+                    value = new object();
+                    break;
+            }
+
+            property.SetValue(Instance, value);
+        }
+    }
+}

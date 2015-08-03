@@ -7,15 +7,12 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Create_Instance_Of_Given_Type()
         {
-            var instance = Oxygenize.For<TestClass>()
+            var instance = Oxygenize.For<PrimitiveTypes>()
                             .WithStrategy(GenerationStrategy.Mixed)
                             .Instance;
 
-            Assert.IsTrue(instance.GetType() == typeof(TestClass));
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.GetType() == typeof(PrimitiveTypes));
         } 
-    }
-
-    class TestClass
-    {
     }
 }

@@ -1,16 +1,16 @@
-﻿using System;
+﻿using Oxygenize.Generators;
 
 namespace Oxygenize
 {
     public class Oxygenize
     {
-        public static Oxygenize<T> For<T>()
+        public static Oxygenize<T> For<T>() where T : new()
         {
             return new Oxygenize<T>();
         } 
     }
 
-    public class Oxygenize<T>
+    public class Oxygenize<T> where T : new()
     {
         private GenerationStrategy _strategy = GenerationStrategy.Random;
 
@@ -19,7 +19,25 @@ namespace Oxygenize
         /// </summary>
         public T Instance
         {
-            get { return Activator.CreateInstance<T>(); }
+            get { return PopulateData(); }
+        }
+
+        private T PopulateData()
+        {
+            T instance;
+            switch (_strategy)
+            {
+                case GenerationStrategy.Mixed:
+                case GenerationStrategy.Custom:
+                case GenerationStrategy.Random:
+                    instance = new RandomStrategyGenerator<T>().GetData();
+                    break;
+                default:
+                    instance = new RandomStrategyGenerator<T>().GetData();
+                    break;
+            }
+
+            return instance;
         }
 
         /// <summary>
