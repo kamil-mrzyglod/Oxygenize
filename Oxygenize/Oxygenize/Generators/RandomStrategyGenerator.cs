@@ -19,18 +19,33 @@ namespace Oxygenize.Generators
                 {
                     SetPrimitiveValue(property);
                 }
+
+                var nullableType = Nullable.GetUnderlyingType(property.PropertyType);
+                if (nullableType != null)
+                {
+                    SetNullableValue(property);
+                }
             }
         }
 
-        private void SetPrimitiveValue(PropertyInfo property)
+        private void SetNullableValue(PropertyInfo property)
+        {
+            if (Randomizer.ShouldEnter())
+            {
+                SetPrimitiveValue(property, Nullable.GetUnderlyingType(property.PropertyType));
+            }
+        }
+
+        private void SetPrimitiveValue(PropertyInfo property, Type type = null)
         {
             var randomizer = new Randomizer().Instance;
+            var propertyType = type ?? property.PropertyType;
 
             object value;
-            switch (property.PropertyType.ToString())
+            switch (propertyType.ToString())
             {
                 case "System.Boolean":
-                    value = randomizer.NextDouble() < 0.5;
+                    value = Randomizer.ShouldEnter();
                     break;
                 case "System.Byte":
                     var @byte = new byte[1];
