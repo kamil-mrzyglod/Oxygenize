@@ -1,4 +1,5 @@
 ﻿using System;
+using Oxygenize.Generators;
 
 namespace Oxygenize
 {
@@ -19,7 +20,25 @@ namespace Oxygenize
         /// </summary>
         public T Instance
         {
-            get { return Activator.CreateInstance<T>(); }
+            get { return PopulateData(); }
+        }
+
+        private T PopulateData()
+        {
+            T instance;
+            switch (_strategy)
+            {
+                case GenerationStrategy.Mixed:
+                case GenerationStrategy.Custom:
+                case GenerationStrategy.Random:
+                    instance = new RandomStrategyGenerator().For<T>();
+                    break;
+                default:
+                    instance = new RandomStrategyGenerator().For<T>();
+                    break;
+            }
+
+            return instance;
         }
 
         /// <summary>
