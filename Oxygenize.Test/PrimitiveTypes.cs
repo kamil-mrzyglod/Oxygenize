@@ -22,8 +22,6 @@ namespace Oxygenize.Test
 
         public float Float { get; set; }
 
-        public string String { get; set; }
-
         public uint Uint { get; set; }
 
         public ulong Ulong { get; set; }

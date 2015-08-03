@@ -4,13 +4,13 @@ namespace Oxygenize
 {
     public class Oxygenize
     {
-        public static Oxygenize<T> For<T>()
+        public static Oxygenize<T> For<T>() where T : new()
         {
             return new Oxygenize<T>();
         } 
     }
 
-    public class Oxygenize<T>
+    public class Oxygenize<T> where T : new()
     {
         private GenerationStrategy _strategy = GenerationStrategy.Random;
 

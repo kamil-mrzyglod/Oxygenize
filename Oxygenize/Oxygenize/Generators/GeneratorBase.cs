@@ -2,7 +2,7 @@
 
 namespace Oxygenize.Generators
 {
-    abstract class GeneratorBase<T>
+    abstract class GeneratorBase<T> where T : new()
     {
         protected Type Type;
         protected T Instance;
@@ -10,11 +10,12 @@ namespace Oxygenize.Generators
         public T GetData()
         {
             Type = typeof (T);
-            Instance = Activator.CreateInstance<T>();
+            Instance = new T();
 
             return Generate();
         }
 
         protected abstract T Generate();
+        protected abstract void SetProperties();
     }
 }
