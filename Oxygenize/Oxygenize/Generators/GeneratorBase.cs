@@ -1,12 +1,20 @@
-﻿namespace Oxygenize.Generators
+﻿using System;
+
+namespace Oxygenize.Generators
 {
-    abstract class GeneratorBase
+    abstract class GeneratorBase<T>
     {
-        public T For<T>()
+        protected Type Type;
+        protected T Instance;
+
+        public T GetData()
         {
-            return Generate<T>();
+            Type = typeof (T);
+            Instance = Activator.CreateInstance<T>();
+
+            return Generate();
         }
 
-        protected abstract T Generate<T>();
+        protected abstract T Generate();
     }
 }

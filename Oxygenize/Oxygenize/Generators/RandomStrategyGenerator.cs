@@ -1,12 +1,10 @@
-﻿using System;
-
-namespace Oxygenize.Generators
+﻿namespace Oxygenize.Generators
 {
-    class RandomStrategyGenerator : GeneratorBase
+    class RandomStrategyGenerator<T> : GeneratorBase<T>
     {
-        protected override T Generate<T>()
+        protected override T Generate()
         {
-            return Activator.CreateInstance<T>();
+            return Instance;
         }
     }
 }
