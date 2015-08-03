@@ -14,6 +14,9 @@ namespace Oxygenize
     {
         private GenerationStrategy _strategy = GenerationStrategy.Random;
 
+        /// <summary>
+        /// Returns an instance of the given type
+        /// </summary>
         public T Instance
         {
             get { return Activator.CreateInstance<T>(); }
