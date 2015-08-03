@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 
 namespace Oxygenize.Generators
 {
@@ -23,41 +24,56 @@ namespace Oxygenize.Generators
 
         private void SetPrimitiveValue(PropertyInfo property)
         {
+            var randomizer = new Randomizer().Instance;
+
             object value;
             switch (property.PropertyType.ToString())
             {
                 case "System.Boolean":
-                    value = true;
+                    value = randomizer.NextDouble() < 0.5;
                     break;
                 case "System.Byte":
-                    value = new byte();
+                    var @byte = new byte[1];
+                    randomizer.NextBytes(@byte);
+                    value = @byte[0];
                     break;
                 case "System.Char":
-                    value = new char();
+                    value = Chars[randomizer.Next(0, Chars.Length - 1)];
                     break;
                 case "System.Double":
-                    value = 10d;
+                    value = randomizer.NextDouble();
                     break;
                 case "System.Int32":
-                    value = 1;
+                    value = randomizer.Next();
                     break;
                 case "System.Int64":
-                    value = 10L;
+                    value = (long)randomizer.Next();
                     break;
                 case "System.SByte":
-                    value = new sbyte();
+                    var @sbyte = new byte[1];
+                    randomizer.NextBytes(@sbyte);
+                    value = (sbyte)@sbyte[0];
                     break;
                 case "System.Int16":
-                    value = new short();
+                    value = (short)randomizer.Next(1 << 16);
                     break;
                 case "System.Single":
-                    value = new float();
+                    value = (float)randomizer.Next(1 << 32);
+                    break;
+                case "System.UInt16":
+                    var shortBytes = new byte[2];
+                    randomizer.NextBytes(shortBytes);
+                    value = BitConverter.ToUInt16(shortBytes, 0);
                     break;
                 case "System.UInt32":
-                    value = new uint();
+                    var bytes = new byte[4];
+                    randomizer.NextBytes(bytes);
+                    value = BitConverter.ToUInt32(bytes, 0);
                     break;
                 case "System.UInt64":
-                    value = new ulong();
+                    var longBytes = new byte[8];
+                    randomizer.NextBytes(longBytes);
+                    value = BitConverter.ToUInt64(longBytes, 0);
                     break;
                 default:
                     value = new object();
