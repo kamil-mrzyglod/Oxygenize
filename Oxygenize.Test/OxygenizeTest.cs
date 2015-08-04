@@ -84,5 +84,28 @@ namespace Oxygenize.Test
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.GetType() == typeof(CustomTypes));
         }
+
+        [Test]
+        public void Should_Generate_An_Instance_Of_Primitive_Arrays()
+        {
+            var instance = Oxygenize.For<PrimitiveTypesArrays>()
+                            .UpperBound(500)
+                            .Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance.Bools);
+            Assert.IsNotNull(instance.Bytes);
+            Assert.IsNotNull(instance.Chars);
+            Assert.IsNotNull(instance.Doubles);
+            Assert.IsNotNull(instance.Floats);
+            Assert.IsNotNull(instance.Ints);
+            Assert.IsNotNull(instance.Longs);
+            Assert.IsNotNull(instance.Sbytes);
+            Assert.IsNotNull(instance.Shorts);
+            Assert.IsNotNull(instance.Uints);
+            Assert.IsNotNull(instance.Ulongs);
+            Assert.IsNotNull(instance.Ushorts);
+            Assert.IsTrue(instance.GetType() == typeof(PrimitiveTypesArrays));
+        }
     }
 }

@@ -39,6 +39,7 @@ namespace Oxygenize
     public class Oxygenize<T> where T : new()
     {
         private GenerationStrategy _strategy = GenerationStrategy.Random;
+        private int _arrayUpperBound = 1000;
 
         /// <summary>
         /// Returns an instance of the given type
@@ -56,10 +57,10 @@ namespace Oxygenize
                 case GenerationStrategy.Mixed:
                 case GenerationStrategy.Custom:
                 case GenerationStrategy.Random:
-                    instance = new RandomStrategyGenerator<T>().GetData();
+                    instance = new RandomStrategyGenerator<T>(_arrayUpperBound).GetData();
                     break;
                 default:
-                    instance = new RandomStrategyGenerator<T>().GetData();
+                    instance = new RandomStrategyGenerator<T>(_arrayUpperBound).GetData();
                     break;
             }
 
@@ -73,7 +74,16 @@ namespace Oxygenize
         {
             _strategy = strategy;
             return this;
-        } 
+        }
+
+        /// <summary>
+        /// Sets upper bound for arrays generation
+        /// </summary>
+        public Oxygenize<T> UpperBound(int upperBound)
+        {
+            _arrayUpperBound = upperBound;
+            return this;
+        }
     }
 
     public enum GenerationStrategy
