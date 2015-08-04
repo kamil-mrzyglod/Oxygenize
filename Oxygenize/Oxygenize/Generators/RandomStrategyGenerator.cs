@@ -26,10 +26,12 @@ namespace Oxygenize.Generators
                     {
                         SetNullableValue(property);
                     }
-
-                    if (property.PropertyType.IsValueType)
+                    else
                     {
-                        SetValueType(property);
+                        if (property.PropertyType.IsValueType)
+                        {
+                            SetValueType(property);
+                        }
                     }
                 }           
             }
@@ -124,7 +126,7 @@ namespace Oxygenize.Generators
                     value = new TimeSpan(randomizer.Next());
                     break;
                 default:
-                    value = new object();
+                    value = Oxygenize.ObtainValue(property.PropertyType.ToString());
                     break;
             }
 

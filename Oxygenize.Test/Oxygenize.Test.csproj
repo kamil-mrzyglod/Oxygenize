@@ -70,6 +70,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="CustomTypes.cs" />
     <Compile Include="NullablePrimitiveTypes.cs" />
     <Compile Include="OxygenizeTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
