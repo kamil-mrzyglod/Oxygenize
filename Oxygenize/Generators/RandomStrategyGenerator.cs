@@ -115,7 +115,9 @@ namespace Oxygenize.Generators
                     value = (short) randomizer.Next(1 << 16);
                     break;
                 case "System.Single":
-                    value = (float) randomizer.Next(1 << 32);
+                    var singleBytes = new byte[8];
+                    randomizer.NextBytes(singleBytes);
+                    value = BitConverter.ToSingle(singleBytes, 0);
                     break;
                 case "System.UInt16":
                     var shortBytes = new byte[2];
