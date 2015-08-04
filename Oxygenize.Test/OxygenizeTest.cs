@@ -19,7 +19,7 @@ namespace Oxygenize.Test
             Assert.IsTrue(instance.Byte != default(byte));
             Assert.IsTrue(instance.Char != default(char));
             Assert.IsTrue(Math.Abs(instance.Double - default(double)) > 0.000001);
-            Assert.IsTrue(Math.Abs(instance.Float - default(float)) > 0.000001);
+            Assert.IsTrue(Math.Abs(instance.Float - default(float)) > float.MinValue);
             Assert.IsTrue(instance.Int != default(int));
             Assert.IsTrue(instance.Long != default(long));
             Assert.IsTrue(instance.Sbyte != default(sbyte));
@@ -49,9 +49,9 @@ namespace Oxygenize.Test
                             .Instance;
 
             Assert.IsNotNull(instance);
-            Assert.IsNotNull(instance.DateTime);
-            Assert.IsNotNull(instance.Guid);
-            Assert.IsNotNull(instance.TimeSpan);
+            Assert.IsTrue(instance.DateTime != default(DateTime));
+            Assert.IsTrue(instance.Guid != default(Guid));
+            Assert.IsTrue(instance.TimeSpan != default(TimeSpan));
             Assert.IsTrue(instance.GetType() == typeof(ValueTypes));
         }
 
