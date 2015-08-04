@@ -8,3 +8,7 @@ Oxygenize/Oxygenize/bin/
 packages/
 Oxygenize/obj/
 Oxygenize/bin/
+NuGet.Packager/bin/
+NuGet.Packager/obj/
+*.nupkg
+*.log
