@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygenize", "Oxygenize\Oxygenize.csproj", "{EA22FD0C-EBDA-483A-9021-1D3D7A6EB493}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygenize.Test", "..\Oxygenize.Test\Oxygenize.Test.csproj", "{BE144422-AC05-4371-8677-9CF296FF59A3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygenize.Test", "Oxygenize.Test\Oxygenize.Test.csproj", "{BE144422-AC05-4371-8677-9CF296FF59A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

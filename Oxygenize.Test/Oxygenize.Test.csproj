@@ -82,7 +82,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Oxygenize\Oxygenize\Oxygenize.csproj">
+    <ProjectReference Include="..\Oxygenize\Oxygenize.csproj">
       <Project>{ea22fd0c-ebda-483a-9021-1d3d7a6eb493}</Project>
       <Name>Oxygenize</Name>
     </ProjectReference>

@@ -4,3 +4,7 @@ Oxygenize/packages/
 Oxygenize.Test/obj/
 Oxygenize.Test/bin/
 Oxygenize/Oxygenize/bin/
+*.user
+packages/
+Oxygenize/obj/
+Oxygenize/bin/
