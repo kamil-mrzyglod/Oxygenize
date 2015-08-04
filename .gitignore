@@ -12,3 +12,4 @@ NuGet.Packager/bin/
 NuGet.Packager/obj/
 *.nupkg
 *.log
+NuGet.Packager/
