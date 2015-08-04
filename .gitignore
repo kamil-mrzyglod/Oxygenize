@@ -1,0 +1,14 @@
+*.suo
+Oxygenize/Oxygenize/obj/
+Oxygenize/packages/
+Oxygenize.Test/obj/
+Oxygenize.Test/bin/
+Oxygenize/Oxygenize/bin/
+*.user
+packages/
+Oxygenize/obj/
+Oxygenize/bin/
+NuGet.Packager/bin/
+NuGet.Packager/obj/
+*.nupkg
+*.log
