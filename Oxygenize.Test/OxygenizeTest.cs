@@ -107,5 +107,22 @@ namespace Oxygenize.Test
             Assert.IsNotNull(instance.Ushorts);
             Assert.IsTrue(instance.GetType() == typeof(PrimitiveTypesArrays));
         }
+
+        [Test]
+        public void Should_Generate_An_Instance_With_Decimal()
+        {
+            var instance = Oxygenize.For<DecimalTest>().Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.Decimal != 0);
+            Assert.IsTrue(instance.GetType() == typeof(DecimalTest));
+        }
+    }
+
+    public class DecimalTest
+    {
+        public decimal Decimal { get; set; }
+
+        public decimal? NullableDecimal { get; set; }
     }
 }

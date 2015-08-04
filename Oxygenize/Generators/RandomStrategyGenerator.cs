@@ -59,7 +59,15 @@ namespace Oxygenize.Generators
         {
             if (Randomizer.ShouldEnter())
             {
-                SetPrimitiveValue(property, Nullable.GetUnderlyingType(property.PropertyType));
+                var underlyingType = Nullable.GetUnderlyingType(property.PropertyType);
+                if (property.PropertyType.IsValueType && !underlyingType.IsPrimitive)
+                {
+                    SetValueType(property, underlyingType);
+                }
+                else
+                {
+                    SetPrimitiveValue(property, underlyingType);
+                }               
             }
         }
 
@@ -131,12 +139,13 @@ namespace Oxygenize.Generators
             return value;
         }
 
-        public void SetValueType(PropertyInfo property)
+        public void SetValueType(PropertyInfo property, Type type = null)
         {
+            var propertyType = type ?? property.PropertyType;
             var randomizer = new Randomizer().Instance;
 
             object value;
-            switch (property.PropertyType.ToString())
+            switch (propertyType.ToString())
             {
                 case "System.DateTime":
                     var range = DateTime.MaxValue - DateTime.MinValue;
@@ -148,6 +157,11 @@ namespace Oxygenize.Generators
                     break;
                 case "System.TimeSpan":
                     value = new TimeSpan(randomizer.Next());
+                    break;
+                case "System.Decimal":
+                    var scale = (byte) randomizer.Next(29);
+                    var sign = randomizer.Next(2) == 1;
+                    value = new decimal(randomizer.NextInt32(), randomizer.NextInt32(), randomizer.NextInt32(), sign, scale);
                     break;
                 default:
                     value = Oxygenize.ObtainValue(property.PropertyType.ToString());
