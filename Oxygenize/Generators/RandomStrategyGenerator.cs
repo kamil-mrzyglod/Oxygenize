@@ -75,6 +75,20 @@ namespace Oxygenize.Generators
                 return typeof(Enumerable).GetMethod("ToList").MakeGenericMethod(genericType).Invoke(null, new object[] { methodInfo });
             }
 
+            if (propertyType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
+            {
+                var keyType = propertyType.GetGenericArguments()[0];
+                var valueType = propertyType.GetGenericArguments()[1];
+
+                var dictionaryType = typeof(Dictionary<,>).MakeGenericType(new[] { keyType, valueType });
+                var keysAndValues = Enumerable.Range(0, randomizer.Next(UpperBound)).Select(x => Tuple.Create(GetRandomValue(keyType), GetRandomValue(valueType)));
+                var dictionary = keysAndValues.ToDictionary(key => key.Item1, value => value.Item2);
+                var methodInfo = typeof(Enumerable).GetMethod("Cast")
+                                    .MakeGenericMethod(dictionaryType)
+                                    .Invoke(null, new object[] { dictionary }) as IDictionary;
+                return Activator.CreateInstance(dictionaryType);
+            }
+
             return new object();
         }
 

@@ -148,6 +148,9 @@ namespace Oxygenize.Test
             Assert.IsNotNull(instance.ListInts);
             Assert.IsNotEmpty(instance.ListInts);
             Assert.IsInstanceOf<IList<int>>(instance.ListInts);
+            Assert.IsNotNull(instance.Dictionary);
+            Assert.IsNotEmpty(instance.Dictionary);
+            Assert.IsInstanceOf<IDictionary<int, decimal>>(instance.Dictionary);
             Assert.IsTrue(instance.GetType() == typeof(Collections));
         }
     }
@@ -166,6 +169,8 @@ namespace Oxygenize.Test
 
         public IList<int> ListInts { get; set; } 
 
-        public IList<int?> ListNullableInts { get; set; } 
+        public IList<int?> ListNullableInts { get; set; }
+
+        public IDictionary<int, decimal> Dictionary { get; set; } 
     }
 }
