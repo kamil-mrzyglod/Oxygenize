@@ -67,7 +67,7 @@ namespace Oxygenize.Generators
                 return GetRandomEnumerable(propertyType, randomizer);
             }
 
-            if (propertyType.GetGenericTypeDefinition() == typeof (ICollection<>))
+            if (propertyType.GetGenericTypeDefinition() == typeof(ICollection<>) || propertyType.GetGenericTypeDefinition() == typeof(IList<>))
             {
                 var genericType = propertyType.GetGenericArguments()[0];
                 var methodInfo = GetRandomEnumerable(propertyType, randomizer);

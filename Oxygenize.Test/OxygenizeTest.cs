@@ -145,6 +145,9 @@ namespace Oxygenize.Test
             Assert.IsNotNull(instance.CollectionInts);
             Assert.IsNotEmpty(instance.CollectionInts);
             Assert.IsInstanceOf<ICollection<int>>(instance.CollectionInts);
+            Assert.IsNotNull(instance.ListInts);
+            Assert.IsNotEmpty(instance.ListInts);
+            Assert.IsInstanceOf<IList<int>>(instance.ListInts);
             Assert.IsTrue(instance.GetType() == typeof(Collections));
         }
     }
@@ -158,5 +161,11 @@ namespace Oxygenize.Test
         public IEnumerable<decimal> Decimals { get; set; }
 
         public ICollection<int> CollectionInts { get; set; } 
+
+        public ICollection<int?> CollectionNullableInts { get; set; }
+
+        public IList<int> ListInts { get; set; } 
+
+        public IList<int?> ListNullableInts { get; set; } 
     }
 }
