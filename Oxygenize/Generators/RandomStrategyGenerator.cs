@@ -64,14 +64,28 @@ namespace Oxygenize.Generators
 
             if (propertyType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
             {
+                return GetRandomEnumerable(propertyType, randomizer);
+            }
+
+            if (propertyType.GetGenericTypeDefinition() == typeof (ICollection<>))
+            {
                 var genericType = propertyType.GetGenericArguments()[0];
-                var enumerable = Enumerable.Range(0, randomizer.Next(UpperBound)).Select(x => GetRandomValue(genericType));
-                var methodInfo = typeof(Enumerable).GetMethod("Cast");
-                var genericMethod = methodInfo.MakeGenericMethod(genericType);
-                return genericMethod.Invoke(null, new object[] { enumerable }) as IEnumerable;
+                var methodInfo = GetRandomEnumerable(propertyType, randomizer);
+
+                return typeof(Enumerable).GetMethod("ToList").MakeGenericMethod(genericType).Invoke(null, new object[] { methodInfo });
             }
 
             return new object();
+        }
+
+        private IEnumerable GetRandomEnumerable(Type propertyType, Random randomizer)
+        {
+            var genericType = propertyType.GetGenericArguments()[0];
+            var enumerable = Enumerable.Range(0, randomizer.Next(UpperBound)).Select(x => GetRandomValue(genericType));
+            var methodInfo = typeof (Enumerable).GetMethod("Cast")
+                .MakeGenericMethod(genericType)
+                .Invoke(null, new object[] {enumerable}) as IEnumerable;
+            return methodInfo;
         }
 
         private static Enum GetEnumValue(Type propertyType)
