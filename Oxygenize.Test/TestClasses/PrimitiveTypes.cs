@@ -1,4 +1,4 @@
-namespace Oxygenize.Test
+namespace Oxygenize.Test.TestClasses
 {
     class PrimitiveTypes
     {

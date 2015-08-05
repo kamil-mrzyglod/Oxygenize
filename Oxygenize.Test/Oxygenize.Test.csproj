@@ -70,13 +70,14 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="CustomTypes.cs" />
-    <Compile Include="NullablePrimitiveTypes.cs" />
+    <Compile Include="TestClasses\CustomTypes.cs" />
+    <Compile Include="TestClasses\DecimalTestClass.cs" />
+    <Compile Include="TestClasses\NullablePrimitiveTypes.cs" />
     <Compile Include="OxygenizeTest.cs" />
-    <Compile Include="PrimitiveTypesArrays.cs" />
+    <Compile Include="TestClasses\PrimitiveTypesArrays.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PrimitiveTypes.cs" />
-    <Compile Include="ValueTypes.cs" />
+    <Compile Include="TestClasses\PrimitiveTypes.cs" />
+    <Compile Include="TestClasses\ValueTypes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
