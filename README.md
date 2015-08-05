@@ -27,6 +27,14 @@ var instance = Oxygenize.For<YourTypeToBegenerated>()
                         .WithStrategy(GenerationStrategy.Random)
                         .Instance;
 ```
+## Supported types
+Currently Oxygenize supports following types natively:
+* primitives(`int`, `decimal` etc.)
+* nullable primitives(`int?`, `decimal?` etc.)
+* arrays of primitives/nullable primitives
+* value types(`DateTime`, `Guid`, `TimeSpan`)
+* decimals/decimal arrays
+* enums
 
 ## Custom types support
 By default Oxygenize supports only few structs which can be generated using `GenerationStrategy.Random` e.g. `DateTime` or `Guid`. You can add support for all desired types using `Oxygenize.AddSupport(string typeName, Func<object> valueToObtain)` method:
@@ -38,7 +46,7 @@ Oxygenize.AddSupport("Oxygenize.Test.CustomStruct", () => new CustomStruct
 });
 ```
 
-this method take two arguments:
+this method takes two arguments:
 * `string typeName` which is nothing more than string representation of an instance of the given type - implementation of the `ToString()` method
 * `Func<object> valueToObtain` delegate which will be invoked when generating random type instance value
 
