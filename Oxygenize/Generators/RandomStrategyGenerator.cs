@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 
 namespace Oxygenize.Generators
 {
@@ -21,41 +20,35 @@ namespace Oxygenize.Generators
         {
             foreach (var property in Type.GetProperties())
             {
-                object value;
-                if (property.PropertyType.IsPrimitive)
-                {
-                    value = SetPrimitiveValue(property);
-                    property.SetValue(Instance, value);
-                    continue;
-                }
-
-                var nullableType = Nullable.GetUnderlyingType(property.PropertyType);
-                if (nullableType != null)
-                {
-                    value = SetNullableValue(property);
-                    property.SetValue(Instance, value);
-                    continue;
-                }
-
-                if (property.PropertyType.IsValueType)
-                {
-                    value = SetValueType(property);
-                    property.SetValue(Instance, value);
-                }
-
-                if (!property.PropertyType.IsArray)
-                {
-                    continue;
-                }
-
-                value = GenerateArray(property);
+                var value = GetRandomValue(property.PropertyType);
                 property.SetValue(Instance, value);
             }
         }
 
-        private Array GenerateArray(PropertyInfo property)
+        private object GetRandomValue(Type propertyType)
         {
-            var elementType = property.PropertyType.GetElementType();
+            if (propertyType.IsPrimitive)
+            {
+                return SetPrimitiveValue(propertyType);
+            }
+
+            var nullableType = Nullable.GetUnderlyingType(propertyType);
+            if (nullableType != null)
+            {
+                return SetNullableValue(propertyType);
+            }
+
+            if (propertyType.IsValueType)
+            {
+                return SetValueType(propertyType);
+            }
+
+            return !propertyType.IsArray ? new object() : GenerateArray(propertyType);
+        }
+
+        private Array GenerateArray(Type propertyType)
+        {
+            var elementType = propertyType.GetElementType();
             var randomizer = new Randomizer().Instance;
 
             var array = Array.CreateInstance(elementType, randomizer.Next(1, UpperBound));
@@ -65,31 +58,31 @@ namespace Oxygenize.Generators
             return array;
         }
 
-        private object SetNullableValue(PropertyInfo property)
+        private object SetNullableValue(Type propertyType)
         {
             if (!Randomizer.ShouldEnter())
             {
                 return null;
             }
 
-            var underlyingType = Nullable.GetUnderlyingType(property.PropertyType);
-            if (property.PropertyType.IsValueType && !underlyingType.IsPrimitive)
+            var underlyingType = Nullable.GetUnderlyingType(propertyType);
+            if (propertyType.IsValueType && !underlyingType.IsPrimitive)
             {
-                return SetValueType(property, underlyingType);
+                return SetValueType(propertyType, underlyingType);
             }
 
-            return SetPrimitiveValue(property, underlyingType);
+            return SetPrimitiveValue(propertyType, underlyingType);
         }
 
-        private static object SetPrimitiveValue(PropertyInfo property, Type type = null)
+        private static object SetPrimitiveValue(Type propertyType, Type underlyingType = null)
         {
-            var propertyType = type ?? property.PropertyType;
-            var value = GetRandomValue(propertyType);
+            var type = underlyingType ?? propertyType;
+            var value = GetRandomPrimitiveValue(type);
 
             return value;
         }
 
-        private static object GetRandomValue(Type propertyType)
+        private static object GetRandomPrimitiveValue(Type propertyType)
         {
             var randomizer = new Randomizer().Instance;
 
@@ -151,13 +144,13 @@ namespace Oxygenize.Generators
             return value;
         }
 
-        public object SetValueType(PropertyInfo property, Type type = null)
+        public object SetValueType(Type propertyType, Type underlyingType = null)
         {
-            var propertyType = type ?? property.PropertyType;
+            var type = underlyingType ?? propertyType;
             var randomizer = new Randomizer().Instance;
 
             object value;
-            switch (propertyType.ToString())
+            switch (type.ToString())
             {
                 case "System.DateTime":
                     var range = DateTime.MaxValue - DateTime.MinValue;
@@ -176,7 +169,7 @@ namespace Oxygenize.Generators
                     value = new decimal(randomizer.NextInt32(), randomizer.NextInt32(), randomizer.NextInt32(), sign, scale);
                     break;
                 default:
-                    value = Oxygenize.ObtainValue(property.PropertyType.ToString());
+                    value = Oxygenize.ObtainValue(type.ToString());
                     break;
             }
 

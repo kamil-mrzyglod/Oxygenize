@@ -116,6 +116,7 @@ namespace Oxygenize.Test
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.Decimal != 0);
+            Assert.IsNotNull(instance.Decimals);
             Assert.IsTrue(instance.GetType() == typeof(DecimalTest));
         }
     }
