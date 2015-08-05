@@ -38,12 +38,24 @@ namespace Oxygenize.Generators
                 return SetNullableValue(propertyType);
             }
 
+            if (propertyType.IsEnum)
+            {
+                return GetEnumValue(propertyType);
+            }
+
             if (propertyType.IsValueType)
             {
                 return SetValueType(propertyType);
             }
 
             return !propertyType.IsArray ? new object() : GenerateArray(propertyType);
+        }
+
+        private static Enum GetEnumValue(Type propertyType)
+        {
+            var values = Enum.GetValues(propertyType);
+            var randomizer = new Randomizer().Instance;
+            return (Enum)values.GetValue(randomizer.Next(values.Length));
         }
 
         private Array GenerateArray(Type propertyType)

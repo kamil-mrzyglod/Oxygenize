@@ -126,19 +126,10 @@ namespace Oxygenize.Test
         {
             var instance = Oxygenize.For<ClassWithEnums>().Instance;
 
+            TestEnum enumValue;
             Assert.IsNotNull(instance);
+            Assert.IsTrue(Enum.TryParse(instance.Enum.ToString(), out enumValue));
             Assert.IsTrue(instance.GetType() == typeof(ClassWithEnums));
         }
-    }
-
-    public class ClassWithEnums
-    {
-        public TestEnum Enum { get; set; }
-    }
-
-    public enum TestEnum
-    {
-        One = 1,
-        Two = 2
     }
 }
