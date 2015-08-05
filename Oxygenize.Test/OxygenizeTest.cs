@@ -125,5 +125,7 @@ namespace Oxygenize.Test
         public decimal Decimal { get; set; }
 
         public decimal? NullableDecimal { get; set; }
+
+        public decimal[] Decimals { get; set; }
     }
 }
