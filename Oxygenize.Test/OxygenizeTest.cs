@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using NUnit.Framework;
 using Oxygenize.Test.TestClasses;
 
 namespace Oxygenize.Test
@@ -131,5 +132,21 @@ namespace Oxygenize.Test
             Assert.IsTrue(Enum.TryParse(instance.Enum.ToString(), out enumValue));
             Assert.IsTrue(instance.GetType() == typeof(ClassWithEnums));
         }
+
+        [Test]
+        public void Should_Generate_An_Instance_With_Non_Empty_Collections()
+        {
+            var instance = Oxygenize.For<Collections>().Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance.Ints);
+            Assert.IsNotEmpty(instance.Ints);
+            Assert.IsTrue(instance.GetType() == typeof(Collections));
+        }
+    }
+
+    public class Collections
+    {
+        public IEnumerable<int> Ints { get; set; }
     }
 }

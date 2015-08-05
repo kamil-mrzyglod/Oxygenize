@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Oxygenize.Generators
@@ -48,7 +50,28 @@ namespace Oxygenize.Generators
                 return SetValueType(propertyType);
             }
 
+            if (propertyType.IsGenericType)
+            {
+                return GetGenericTypeValue(propertyType);
+            }
+
             return !propertyType.IsArray ? new object() : GenerateArray(propertyType);
+        }
+
+        private object GetGenericTypeValue(Type propertyType)
+        {
+            var randomizer = new Randomizer().Instance;
+
+            if (propertyType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
+            {
+                var genericType = propertyType.GetGenericArguments()[0];
+                var enumerable = Enumerable.Range(0, randomizer.Next(UpperBound)).Select(x => GetRandomValue(genericType));
+                var methodInfo = typeof(Enumerable).GetMethod("Cast");
+                var genericMethod = methodInfo.MakeGenericMethod(genericType);
+                return genericMethod.Invoke(null, new object[] { enumerable }) as IEnumerable;
+            }
+
+            return new object();
         }
 
         private static Enum GetEnumValue(Type propertyType)
