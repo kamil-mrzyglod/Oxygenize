@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 
 namespace Oxygenize.Generators
 {
@@ -21,57 +20,69 @@ namespace Oxygenize.Generators
         {
             foreach (var property in Type.GetProperties())
             {
-                if (property.PropertyType.IsPrimitive)
-                {
-                    SetPrimitiveValue(property);
-                }
-                else
-                {
-                    var nullableType = Nullable.GetUnderlyingType(property.PropertyType);
-                    if (nullableType != null)
-                    {
-                        SetNullableValue(property);
-                    }
-                    else
-                    {
-                        if (property.PropertyType.IsValueType)
-                        {
-                            SetValueType(property);
-                        }
-
-                        if (property.PropertyType.IsArray)
-                        {
-                            var elementType = property.PropertyType.GetElementType();
-                            var randomizer = new Randomizer().Instance;
-
-                            var array = Array.CreateInstance(elementType, randomizer.Next(1, UpperBound));
-                            var value = Enumerable.Range(0, array.Length - 1).Select(x => GetRandomValue(elementType)).ToArray();
-                            Array.Copy(value, array, value.Length);
-
-                            property.SetValue(Instance, array);
-                        }
-                    }
-                }           
+                var value = GetRandomValue(property.PropertyType);
+                property.SetValue(Instance, value);
             }
         }
 
-        private void SetNullableValue(PropertyInfo property)
+        private object GetRandomValue(Type propertyType)
         {
-            if (Randomizer.ShouldEnter())
+            if (propertyType.IsPrimitive)
             {
-                SetPrimitiveValue(property, Nullable.GetUnderlyingType(property.PropertyType));
+                return SetPrimitiveValue(propertyType);
             }
+
+            var nullableType = Nullable.GetUnderlyingType(propertyType);
+            if (nullableType != null)
+            {
+                return SetNullableValue(propertyType);
+            }
+
+            if (propertyType.IsValueType)
+            {
+                return SetValueType(propertyType);
+            }
+
+            return !propertyType.IsArray ? new object() : GenerateArray(propertyType);
         }
 
-        private void SetPrimitiveValue(PropertyInfo property, Type type = null)
+        private Array GenerateArray(Type propertyType)
         {
-            var propertyType = type ?? property.PropertyType;
-            var value = GetRandomValue(propertyType);
+            var elementType = propertyType.GetElementType();
+            var randomizer = new Randomizer().Instance;
 
-            property.SetValue(Instance, value);
+            var array = Array.CreateInstance(elementType, randomizer.Next(1, UpperBound));
+            var value = Enumerable.Range(0, array.Length - 1).Select(x => GetRandomValue(elementType)).ToArray();
+            Array.Copy(value, array, value.Length);
+
+            return array;
         }
 
-        private static object GetRandomValue(Type propertyType)
+        private object SetNullableValue(Type propertyType)
+        {
+            if (!Randomizer.ShouldEnter())
+            {
+                return null;
+            }
+
+            var underlyingType = Nullable.GetUnderlyingType(propertyType);
+            if (propertyType.IsValueType && !underlyingType.IsPrimitive)
+            {
+                return SetValueType(propertyType, underlyingType);
+            }
+
+            return SetPrimitiveValue(propertyType, underlyingType);
+        }
+
+        private static object SetPrimitiveValue(Type propertyType, Type underlyingType = null)
+        {
+            var type = underlyingType ?? propertyType;
+            var value = GetRandomPrimitiveValue(type);
+
+            return value;
+        }
+
+        private static object GetRandomPrimitiveValue(Type propertyType)
         {
             var randomizer = new Randomizer().Instance;
 
@@ -107,7 +118,9 @@ namespace Oxygenize.Generators
                     value = (short) randomizer.Next(1 << 16);
                     break;
                 case "System.Single":
-                    value = (float) randomizer.Next(1 << 32);
+                    var singleBytes = new byte[8];
+                    randomizer.NextBytes(singleBytes);
+                    value = BitConverter.ToSingle(singleBytes, 0);
                     break;
                 case "System.UInt16":
                     var shortBytes = new byte[2];
@@ -131,12 +144,13 @@ namespace Oxygenize.Generators
             return value;
         }
 
-        public void SetValueType(PropertyInfo property)
+        public object SetValueType(Type propertyType, Type underlyingType = null)
         {
+            var type = underlyingType ?? propertyType;
             var randomizer = new Randomizer().Instance;
 
             object value;
-            switch (property.PropertyType.ToString())
+            switch (type.ToString())
             {
                 case "System.DateTime":
                     var range = DateTime.MaxValue - DateTime.MinValue;
@@ -149,12 +163,17 @@ namespace Oxygenize.Generators
                 case "System.TimeSpan":
                     value = new TimeSpan(randomizer.Next());
                     break;
+                case "System.Decimal":
+                    var scale = (byte) randomizer.Next(29);
+                    var sign = randomizer.Next(2) == 1;
+                    value = new decimal(randomizer.NextInt32(), randomizer.NextInt32(), randomizer.NextInt32(), sign, scale);
+                    break;
                 default:
-                    value = Oxygenize.ObtainValue(property.PropertyType.ToString());
+                    value = Oxygenize.ObtainValue(type.ToString());
                     break;
             }
 
-            property.SetValue(Instance, value);
+            return value;
         }
     }
 }

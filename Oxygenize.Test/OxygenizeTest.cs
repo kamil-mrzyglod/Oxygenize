@@ -2,6 +2,8 @@
 
 namespace Oxygenize.Test
 {
+    using System;
+
     public class OxygenizeTest
     {
         public const string CustomValueTypeName = "System.SupportedStruct";
@@ -14,18 +16,17 @@ namespace Oxygenize.Test
                             .Instance;
 
             Assert.IsNotNull(instance);
-            Assert.IsNotNull(instance.Bool);
-            Assert.IsNotNull(instance.Byte);
-            Assert.IsNotNull(instance.Char);
-            Assert.IsNotNull(instance.Double);
-            Assert.IsNotNull(instance.Float);
-            Assert.IsNotNull(instance.Int);
-            Assert.IsNotNull(instance.Long);
-            Assert.IsNotNull(instance.Sbyte);
-            Assert.IsNotNull(instance.Short);
-            Assert.IsNotNull(instance.Uint);
-            Assert.IsNotNull(instance.Ulong);
-            Assert.IsNotNull(instance.Ushort);
+            Assert.IsTrue(instance.Byte != default(byte));
+            Assert.IsTrue(instance.Char != default(char));
+            Assert.IsTrue(Math.Abs(instance.Double - default(double)) > 0.000001);
+            Assert.IsTrue(Math.Abs(instance.Float - default(float)) > float.MinValue);
+            Assert.IsTrue(instance.Int != default(int));
+            Assert.IsTrue(instance.Long != default(long));
+            Assert.IsTrue(instance.Sbyte != default(sbyte));
+            Assert.IsTrue(instance.Short != default(short));
+            Assert.IsTrue(instance.Uint != default(uint));
+            Assert.IsTrue(instance.Ulong != default(ulong));
+            Assert.IsTrue(instance.Ushort != default(ushort));
             Assert.IsTrue(instance.GetType() == typeof(PrimitiveTypes));
         }
 
@@ -48,9 +49,9 @@ namespace Oxygenize.Test
                             .Instance;
 
             Assert.IsNotNull(instance);
-            Assert.IsNotNull(instance.DateTime);
-            Assert.IsNotNull(instance.Guid);
-            Assert.IsNotNull(instance.TimeSpan);
+            Assert.IsTrue(instance.DateTime != default(DateTime));
+            Assert.IsTrue(instance.Guid != default(Guid));
+            Assert.IsTrue(instance.TimeSpan != default(TimeSpan));
             Assert.IsTrue(instance.GetType() == typeof(ValueTypes));
         }
 
@@ -107,5 +108,27 @@ namespace Oxygenize.Test
             Assert.IsNotNull(instance.Ushorts);
             Assert.IsTrue(instance.GetType() == typeof(PrimitiveTypesArrays));
         }
+
+        [Test]
+        public void Should_Generate_An_Instance_With_Decimal()
+        {
+            var instance = Oxygenize.For<DecimalTest>().Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.Decimal != 0);
+            Assert.IsNotNull(instance.Decimals);
+            Assert.IsTrue(instance.GetType() == typeof(DecimalTest));
+        }
+    }
+
+    public class DecimalTest
+    {
+        public decimal Decimal { get; set; }
+
+        public decimal? NullableDecimal { get; set; }
+
+        public decimal[] Decimals { get; set; }
+
+        public decimal?[] NullableDecimals { get; set; }
     }
 }
