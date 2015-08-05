@@ -22,16 +22,21 @@ The very basic usage takes nothing more than:
 
 You can explicitely select generation strategy using `WithStrategy(GenerationStrategy strategy)` method:
 
-```var instance = Oxygenize.For<YourTypeToBegenerated>().WithStrategy(GenerationStrategy.Random).Instance;```
+```
+var instance = Oxygenize.For<YourTypeToBegenerated>()
+                        .WithStrategy(GenerationStrategy.Random)
+                        .Instance;
+```
 
 ## Custom types support
 By default Oxygenize supports only few structs which can be generated using `GenerationStrategy.Random` e.g. `DateTime` or `Guid`. You can add support for all desired types using `Oxygenize.AddSupport(string typeName, Func<object> valueToObtain)` method:
 
 ```
 Oxygenize.AddSupport("Oxygenize.Test.CustomStruct", () => new CustomStruct
-            {
-                Id = 1
-            });```
+{
+    Id = 1
+});
+```
 
 this method take two arguments:
 * `string typeName` which is nothing more than string representation of an instance of the given type - implementation of the `ToString()` method
