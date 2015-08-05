@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using Oxygenize.Test.TestClasses;
 
 namespace Oxygenize.Test
 {
@@ -75,7 +76,7 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Generate_An_Instance_For_Custom_Types()
         {
-            Oxygenize.AddSupport("Oxygenize.Test.CustomStruct", () => new CustomStruct
+            Oxygenize.AddSupport("Oxygenize.Test.TestClasses.CustomStruct", () => new CustomStruct
             {
                 Id = 1
             });
@@ -112,23 +113,23 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Generate_An_Instance_With_Decimal()
         {
-            var instance = Oxygenize.For<DecimalTest>().Instance;
+            var instance = Oxygenize.For<DecimalTestClass>().Instance;
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.Decimal != 0);
             Assert.IsNotNull(instance.Decimals);
-            Assert.IsTrue(instance.GetType() == typeof(DecimalTest));
+            Assert.IsTrue(instance.GetType() == typeof(DecimalTestClass));
         }
-    }
 
-    public class DecimalTest
-    {
-        public decimal Decimal { get; set; }
+        [Test]
+        public void Should_Generate_An_Instance_With_Random_Enum_Value()
+        {
+            var instance = Oxygenize.For<ClassWithEnums>().Instance;
 
-        public decimal? NullableDecimal { get; set; }
-
-        public decimal[] Decimals { get; set; }
-
-        public decimal?[] NullableDecimals { get; set; }
+            TestEnum enumValue;
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(Enum.TryParse(instance.Enum.ToString(), out enumValue));
+            Assert.IsTrue(instance.GetType() == typeof(ClassWithEnums));
+        }
     }
 }

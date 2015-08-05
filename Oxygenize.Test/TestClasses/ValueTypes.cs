@@ -1,7 +1,7 @@
-﻿namespace Oxygenize.Test
-{
-    using System;
+﻿using System;
 
+namespace Oxygenize.Test.TestClasses
+{
     public class ValueTypes
     {
         public DateTime DateTime { get; set; }
