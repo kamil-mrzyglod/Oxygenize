@@ -161,6 +161,14 @@ namespace Oxygenize.Test
 
             Assert.IsNotNull(instance);
             Assert.IsNotNull(instance.String);
+            Assert.IsNotNull(instance.Strings);
+            Assert.IsNotEmpty(instance.Strings);
+            Assert.IsNotNull(instance.EnumerableStrings);
+            Assert.IsNotEmpty(instance.EnumerableStrings);
+            Assert.IsNotNull(instance.CollectionStrings);
+            Assert.IsNotEmpty(instance.CollectionStrings);
+            Assert.IsNotNull(instance.ListStrings);
+            Assert.IsNotEmpty(instance.ListStrings);
             Assert.IsTrue(instance.GetType() == typeof(StringsClass));
         }
 
@@ -174,10 +182,5 @@ namespace Oxygenize.Test
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.GetType() == typeof(StringsClass));
         }
-    }
-
-    public class StringsClass
-    {
-        public string String { get; set; }
     }
 }

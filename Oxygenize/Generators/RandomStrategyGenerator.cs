@@ -27,7 +27,7 @@ namespace Oxygenize.Generators
             }
         }
 
-        private object GetRandomValue(Type propertyType)
+        private object GetRandomValue(Type propertyType, bool cannotBeNull = false)
         {
             if (propertyType.IsPrimitive)
             {
@@ -60,12 +60,12 @@ namespace Oxygenize.Generators
                 return GetValueType(propertyType);
             }
 
-            return GetReferenceTypeValue(propertyType);
+            return GetReferenceTypeValue(propertyType, cannotBeNull);
         }
 
-        private object GetReferenceTypeValue(Type propertyType)
+        private object GetReferenceTypeValue(Type propertyType, bool cannotBeNull = false)
         {
-            if (NullableReferenceTypes)
+            if (NullableReferenceTypes && !cannotBeNull)
             {
                 return Randomizer.ShouldEnter() ? GetRandomReferenceTypeValue(propertyType) : null;
             }
@@ -80,7 +80,7 @@ namespace Oxygenize.Generators
             switch (propertyType.ToString())
             {
                 case "System.String":
-                    return new string(Enumerable.Repeat(Chars, 8).Select(s => s[randomizer.Next(s.Length)]).ToArray());
+                    return new string(Enumerable.Repeat(Chars, randomizer.Next(4000)).Select(s => s[randomizer.Next(s.Length)]).ToArray());
                 default:
                     return Oxygenize.ObtainValue(propertyType.ToString());
             }
@@ -114,7 +114,7 @@ namespace Oxygenize.Generators
                 var addMethod = dictionaryType.GetMethod("Add");
                 for (var i = 0; i <= randomizer.Next(UpperBound); i++)
                 {
-                    addMethod.Invoke(dictionaryInstance, new[] { GetRandomValue(keyType), GetRandomValue(valueType) });
+                    addMethod.Invoke(dictionaryInstance, new[] { GetRandomValue(keyType, true), GetRandomValue(valueType) });
                 }
 
                 return dictionaryInstance;
