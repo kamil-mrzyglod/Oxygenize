@@ -36,6 +36,7 @@ Currently Oxygenize supports following types natively:
 * decimals/decimal arrays
 * enums
 * generic collections `IEnumerable<T>`, `ICollection<T>`, `IList<T>` and `IDictionary<TKey, TValue>`
+* strings
 
 Note: Generics parameter types are limited to the types natively supported by Oxygenize. If the parameter type is your custom type(or is not supported) you has to explicitely register it as shown below.
 
@@ -54,3 +55,28 @@ this method takes two arguments:
 * `Func<object> valueToObtain` delegate which will be invoked when generating random type instance value
 
 All supported types are stored using internal `ConcurrentDictionary` static field so once registered, they stay there until `AppDomain` is unloaded.
+
+## Example usage
+```
+[Test]
+public void Should_Generate_An_Instance_With_Reference_Types()
+{
+    Oxygenize.AddSupport(typeof(PrimitiveTypes).ToString(), () => Oxygenize.For<PrimitiveTypes>().Instance);
+    Oxygenize.AddSupport(typeof(Collections).ToString(), () => Oxygenize.For<Collections>().Instance);
+
+    var instance = Oxygenize.For<InstanceTypes>()
+                            .WithStrategy(GenerationStrategy.Random)
+                            .UpperBound(500)
+                            .NullableReferenceTypes(true)
+                            .Instance;
+
+    ...
+}
+
+class InstanceTypes
+{
+    public PrimitiveTypes PrimitiveTypes { get; set; }
+
+    public Collections Collections { get; set; }
+}
+```

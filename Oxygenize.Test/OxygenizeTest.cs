@@ -153,24 +153,55 @@ namespace Oxygenize.Test
             Assert.IsInstanceOf<IDictionary<int, decimal>>(instance.Dictionary);
             Assert.IsTrue(instance.GetType() == typeof(Collections));
         }
-    }
 
-    public class Collections
-    {
-        public IEnumerable<int> Ints { get; set; }
+        [Test]
+        public void Should_Generate_An_Instance_With_String()
+        {
+            var instance = Oxygenize.For<StringsClass>().Instance;
 
-        public IEnumerable<int?> NullableInts { get; set; }
+            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance.String);
+            Assert.IsNotNull(instance.Strings);
+            Assert.IsNotEmpty(instance.Strings);
+            Assert.IsNotNull(instance.EnumerableStrings);
+            Assert.IsNotEmpty(instance.EnumerableStrings);
+            Assert.IsNotNull(instance.CollectionStrings);
+            Assert.IsNotEmpty(instance.CollectionStrings);
+            Assert.IsNotNull(instance.ListStrings);
+            Assert.IsNotEmpty(instance.ListStrings);
+            Assert.IsTrue(instance.GetType() == typeof(StringsClass));
+        }
 
-        public IEnumerable<decimal> Decimals { get; set; }
+        [Test]
+        public void Should_Generate_An_Instance_With_String_Which_Can_Be_Null()
+        {
+            var instance = Oxygenize.For<StringsClass>()
+                                    .NullableReferenceTypes(true)
+                                    .Instance;
 
-        public ICollection<int> CollectionInts { get; set; } 
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.GetType() == typeof(StringsClass));
+        }
 
-        public ICollection<int?> CollectionNullableInts { get; set; }
+        [Test]
+        public void Should_Generate_An_Instance_With_Reference_Types()
+        {
+            Oxygenize.AddSupport(typeof(PrimitiveTypes).ToString(), () => Oxygenize.For<PrimitiveTypes>().Instance);
+            Oxygenize.AddSupport(typeof(Collections).ToString(), () => Oxygenize.For<Collections>().Instance);
 
-        public IList<int> ListInts { get; set; } 
+            var instance = Oxygenize.For<InstanceTypes>().Instance;
 
-        public IList<int?> ListNullableInts { get; set; }
+            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance.PrimitiveTypes);
+            Assert.IsNotNull(instance.Collections);
+            Assert.IsTrue(instance.GetType() == typeof(InstanceTypes));
+        }
 
-        public IDictionary<int, decimal> Dictionary { get; set; } 
+        class InstanceTypes
+        {
+            public PrimitiveTypes PrimitiveTypes { get; set; }
+
+            public Collections Collections { get; set; }
+        }
     }
 }
