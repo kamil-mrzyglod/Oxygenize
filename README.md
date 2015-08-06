@@ -36,6 +36,7 @@ Currently Oxygenize supports following types natively:
 * decimals/decimal arrays
 * enums
 * generic collections `IEnumerable<T>`, `ICollection<T>`, `IList<T>` and `IDictionary<TKey, TValue>`
+* strings
 
 Note: Generics parameter types are limited to the types natively supported by Oxygenize. If the parameter type is your custom type(or is not supported) you has to explicitely register it as shown below.
 
