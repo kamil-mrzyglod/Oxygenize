@@ -64,13 +64,14 @@ namespace Oxygenize.Generators
 
             if (propertyType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
             {
-                return GetRandomEnumerable(propertyType, randomizer);
+                var genericType = propertyType.GetGenericArguments()[0];
+                return GetRandomEnumerable(genericType, randomizer);
             }
 
             if (propertyType.GetGenericTypeDefinition() == typeof(ICollection<>) || propertyType.GetGenericTypeDefinition() == typeof(IList<>))
             {
                 var genericType = propertyType.GetGenericArguments()[0];
-                var methodInfo = GetRandomEnumerable(propertyType, randomizer);
+                var methodInfo = GetRandomEnumerable(genericType, randomizer);
 
                 return typeof(Enumerable).GetMethod("ToList").MakeGenericMethod(genericType).Invoke(null, new object[] { methodInfo });
             }
@@ -80,21 +81,22 @@ namespace Oxygenize.Generators
                 var keyType = propertyType.GetGenericArguments()[0];
                 var valueType = propertyType.GetGenericArguments()[1];
 
-                var dictionaryType = typeof(Dictionary<,>).MakeGenericType(new[] { keyType, valueType });
-                var keysAndValues = Enumerable.Range(0, randomizer.Next(UpperBound)).Select(x => Tuple.Create(GetRandomValue(keyType), GetRandomValue(valueType)));
-                var dictionary = keysAndValues.ToDictionary(key => key.Item1, value => value.Item2);
-                var methodInfo = typeof(Enumerable).GetMethod("Cast")
-                                    .MakeGenericMethod(dictionaryType)
-                                    .Invoke(null, new object[] { dictionary }) as IDictionary;
-                return Activator.CreateInstance(dictionaryType);
+                var dictionaryType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
+                var dictionaryInstance = Activator.CreateInstance(dictionaryType);
+                var addMethod = dictionaryType.GetMethod("Add");
+                for (var i = 0; i <= randomizer.Next(UpperBound); i++)
+                {
+                    addMethod.Invoke(dictionaryInstance, new[] { GetRandomValue(keyType), GetRandomValue(valueType) });
+                }
+
+                return dictionaryInstance;
             }
 
             return new object();
         }
 
-        private IEnumerable GetRandomEnumerable(Type propertyType, Random randomizer)
+        private IEnumerable GetRandomEnumerable(Type genericType, Random randomizer)
         {
-            var genericType = propertyType.GetGenericArguments()[0];
             var enumerable = Enumerable.Range(0, randomizer.Next(UpperBound)).Select(x => GetRandomValue(genericType));
             var methodInfo = typeof (Enumerable).GetMethod("Cast")
                 .MakeGenericMethod(genericType)
