@@ -73,14 +73,14 @@ namespace Oxygenize.Generators
             return GetRandomReferenceTypeValue(propertyType);
         }
 
-        private static object GetRandomReferenceTypeValue(Type propertyType)
+        private object GetRandomReferenceTypeValue(Type propertyType)
         {
             var randomizer = new Randomizer().Instance;
 
             switch (propertyType.ToString())
             {
                 case "System.String":
-                    return new string(Enumerable.Repeat(Chars, randomizer.Next(4000)).Select(s => s[randomizer.Next(s.Length)]).ToArray());
+                    return new string(Enumerable.Repeat(Chars, randomizer.Next(Configuration.MaximumStringLength)).Select(s => s[randomizer.Next(s.Length)]).ToArray());
                 default:
                     return Oxygenize.ObtainValue(propertyType.ToString());
             }
@@ -145,7 +145,7 @@ namespace Oxygenize.Generators
             var randomizer = new Randomizer().Instance;
 
             var array = Array.CreateInstance(elementType, randomizer.Next(1, Configuration.ArrayUpperBound));
-            var value = Enumerable.Range(0, array.Length - 1).Select(x => GetRandomValue(elementType)).ToArray();
+            var value = Enumerable.Range(0, array.Length).Select(x => GetRandomValue(elementType)).ToArray();
             Array.Copy(value, array, value.Length);
 
             return array;
