@@ -75,10 +75,12 @@ namespace Oxygenize.Generators
 
         private static object GetRandomReferenceTypeValue(Type propertyType)
         {
+            var randomizer = new Randomizer().Instance;
+
             switch (propertyType.ToString())
             {
                 case "System.String":
-                    return string.Empty;
+                    return new string(Enumerable.Repeat(Chars, 8).Select(s => s[randomizer.Next(s.Length)]).ToArray());
                 default:
                     return Oxygenize.ObtainValue(propertyType.ToString());
             }
