@@ -211,10 +211,12 @@ namespace Oxygenize.Test
             var instance = Oxygenize.For<StringArray>()
                                     .UpperBound(100)
                                     .MaxStringLength(100)
+                                    .MinStringLength(50)
                                     .NullableReferenceTypes(false)
                                     .Instance;
 
             Assert.IsTrue(instance.Strings.All(x => x.Length <= 100));
+            Assert.IsTrue(instance.Strings.All(x => x.Length >= 50));
         }
 
         class StringArray

@@ -42,6 +42,7 @@ namespace Oxygenize
         private int _arrayUpperBound = 1000;
         private bool _nullableReferenceTypes;
         private int _maxStringLength = 4000;
+        private int _minStringLength;
 
         /// <summary>
         /// Returns an instance of the given type
@@ -53,7 +54,7 @@ namespace Oxygenize
 
         private T PopulateData()
         {
-            var configuration = new Configuration(_arrayUpperBound, _nullableReferenceTypes, _maxStringLength);
+            var configuration = new Configuration(_arrayUpperBound, _nullableReferenceTypes, _maxStringLength, _minStringLength);
 
             T instance;
             switch (_strategy)
@@ -104,6 +105,15 @@ namespace Oxygenize
         public Oxygenize<T> MaxStringLength(int maxLength)
         {
             _maxStringLength = maxLength;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets minimal length of a generated string
+        /// </summary>
+        public Oxygenize<T> MinStringLength(int minLength)
+        {
+            _minStringLength = minLength;
             return this;
         }  
     }

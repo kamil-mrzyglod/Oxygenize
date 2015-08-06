@@ -80,7 +80,7 @@ namespace Oxygenize.Generators
             switch (propertyType.ToString())
             {
                 case "System.String":
-                    return new string(Enumerable.Repeat(Chars, randomizer.Next(Configuration.MaximumStringLength)).Select(s => s[randomizer.Next(s.Length)]).ToArray());
+                    return new string(Enumerable.Repeat(Chars, randomizer.Next(Configuration.MinStringLength, Configuration.MaximumStringLength)).Select(s => s[randomizer.Next(s.Length)]).ToArray());
                 default:
                     return Oxygenize.ObtainValue(propertyType.ToString());
             }
