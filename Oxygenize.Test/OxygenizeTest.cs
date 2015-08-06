@@ -153,24 +153,31 @@ namespace Oxygenize.Test
             Assert.IsInstanceOf<IDictionary<int, decimal>>(instance.Dictionary);
             Assert.IsTrue(instance.GetType() == typeof(Collections));
         }
+
+        [Test]
+        public void Should_Generate_An_Instance_With_String()
+        {
+            var instance = Oxygenize.For<StringsClass>().Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance.String);
+            Assert.IsTrue(instance.GetType() == typeof(StringsClass));
+        }
+
+        [Test]
+        public void Should_Generate_An_Instance_With_String_Which_Can_Be_Null()
+        {
+            var instance = Oxygenize.For<StringsClass>()
+                                    .NullableReferenceTypes(true)
+                                    .Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.GetType() == typeof(StringsClass));
+        }
     }
 
-    public class Collections
+    public class StringsClass
     {
-        public IEnumerable<int> Ints { get; set; }
-
-        public IEnumerable<int?> NullableInts { get; set; }
-
-        public IEnumerable<decimal> Decimals { get; set; }
-
-        public ICollection<int> CollectionInts { get; set; } 
-
-        public ICollection<int?> CollectionNullableInts { get; set; }
-
-        public IList<int> ListInts { get; set; } 
-
-        public IList<int?> ListNullableInts { get; set; }
-
-        public IDictionary<int, decimal> Dictionary { get; set; } 
+        public string String { get; set; }
     }
 }

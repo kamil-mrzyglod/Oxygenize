@@ -7,8 +7,8 @@ namespace Oxygenize.Generators
 {
     class RandomStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
-        public RandomStrategyGenerator(int upperBound)
-            : base(upperBound)
+        public RandomStrategyGenerator(int upperBound, bool nullableReferenceTypes)
+            : base(upperBound, nullableReferenceTypes)
         {
         }
 
@@ -45,17 +45,43 @@ namespace Oxygenize.Generators
                 return GetEnumValue(propertyType);
             }
 
-            if (propertyType.IsValueType)
-            {
-                return SetValueType(propertyType);
-            }
-
             if (propertyType.IsGenericType)
             {
                 return GetGenericTypeValue(propertyType);
             }
 
-            return !propertyType.IsArray ? new object() : GenerateArray(propertyType);
+            if (propertyType.IsArray)
+            {
+                return GenerateArray(propertyType);
+            }
+
+            if (propertyType.IsValueType)
+            {
+                return GetValueType(propertyType);
+            }
+
+            return GetReferenceTypeValue(propertyType);
+        }
+
+        private object GetReferenceTypeValue(Type propertyType)
+        {
+            if (NullableReferenceTypes)
+            {
+                return Randomizer.ShouldEnter() ? GetRandomReferenceTypeValue(propertyType) : null;
+            }
+
+            return GetRandomReferenceTypeValue(propertyType);
+        }
+
+        private static object GetRandomReferenceTypeValue(Type propertyType)
+        {
+            switch (propertyType.ToString())
+            {
+                case "System.String":
+                    return string.Empty;
+                default:
+                    return Oxygenize.ObtainValue(propertyType.ToString());
+            }
         }
 
         private object GetGenericTypeValue(Type propertyType)
@@ -133,7 +159,7 @@ namespace Oxygenize.Generators
             var underlyingType = Nullable.GetUnderlyingType(propertyType);
             if (propertyType.IsValueType && !underlyingType.IsPrimitive)
             {
-                return SetValueType(propertyType, underlyingType);
+                return GetValueType(propertyType, underlyingType);
             }
 
             return SetPrimitiveValue(propertyType, underlyingType);
@@ -209,7 +235,7 @@ namespace Oxygenize.Generators
             return value;
         }
 
-        public object SetValueType(Type propertyType, Type underlyingType = null)
+        public object GetValueType(Type propertyType, Type underlyingType = null)
         {
             var type = underlyingType ?? propertyType;
             var randomizer = new Randomizer().Instance;

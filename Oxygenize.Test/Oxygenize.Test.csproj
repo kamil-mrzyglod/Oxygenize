@@ -70,6 +70,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="TestClasses\Collections.cs" />
     <Compile Include="TestClasses\ClassWithEnums.cs" />
     <Compile Include="TestClasses\CustomTypes.cs" />
     <Compile Include="TestClasses\DecimalTestClass.cs" />

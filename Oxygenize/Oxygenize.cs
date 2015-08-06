@@ -40,6 +40,7 @@ namespace Oxygenize
     {
         private GenerationStrategy _strategy = GenerationStrategy.Random;
         private int _arrayUpperBound = 1000;
+        private bool _nullableReferenceTypes = false;
 
         /// <summary>
         /// Returns an instance of the given type
@@ -57,10 +58,10 @@ namespace Oxygenize
                 case GenerationStrategy.Mixed:
                 case GenerationStrategy.Custom:
                 case GenerationStrategy.Random:
-                    instance = new RandomStrategyGenerator<T>(_arrayUpperBound).GetData();
+                    instance = new RandomStrategyGenerator<T>(_arrayUpperBound, _nullableReferenceTypes).GetData();
                     break;
                 default:
-                    instance = new RandomStrategyGenerator<T>(_arrayUpperBound).GetData();
+                    instance = new RandomStrategyGenerator<T>(_arrayUpperBound, _nullableReferenceTypes).GetData();
                     break;
             }
 
@@ -82,6 +83,15 @@ namespace Oxygenize
         public Oxygenize<T> UpperBound(int upperBound)
         {
             _arrayUpperBound = upperBound;
+            return this;
+        }
+
+        /// <summary>
+        /// Determines whether reference types can be generated as null
+        /// </summary>
+        public Oxygenize<T> NullableReferenceTypes(bool areNullable)
+        {
+            _nullableReferenceTypes = areNullable;
             return this;
         }
     }
