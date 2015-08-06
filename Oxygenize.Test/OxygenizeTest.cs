@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Oxygenize.Test.TestClasses;
 
@@ -202,6 +203,25 @@ namespace Oxygenize.Test
             public PrimitiveTypes PrimitiveTypes { get; set; }
 
             public Collections Collections { get; set; }
+        }
+
+        [Test]
+        public void Should_Generate_Strings_Not_Exceeding_Given_Length()
+        {
+            var instance = Oxygenize.For<StringArray>()
+                                    .UpperBound(100)
+                                    .MaxStringLength(100)
+                                    .MinStringLength(50)
+                                    .NullableReferenceTypes(false)
+                                    .Instance;
+
+            Assert.IsTrue(instance.Strings.All(x => x.Length <= 100));
+            Assert.IsTrue(instance.Strings.All(x => x.Length >= 50));
+        }
+
+        class StringArray
+        {
+            public string[] Strings { get; set; }
         }
     }
 }
