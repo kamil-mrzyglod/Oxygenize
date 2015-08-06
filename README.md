@@ -35,6 +35,9 @@ Currently Oxygenize supports following types natively:
 * value types(`DateTime`, `Guid`, `TimeSpan`)
 * decimals/decimal arrays
 * enums
+* generic collections `IEnumerable<T>`, `ICollection<T>`, `IList<T>` and `IDictionary<TKey, TValue>`
+
+Note: Generics parameter types are limited to the types natively supported by Oxygenize. If the parameter type is your custom type(or is not supported) you has to explicitely register it as shown below.
 
 ## Custom types support
 By default Oxygenize supports only few structs which can be generated using `GenerationStrategy.Random` e.g. `DateTime` or `Guid`. You can add support for all desired types using `Oxygenize.AddSupport(string typeName, Func<object> valueToObtain)` method:
