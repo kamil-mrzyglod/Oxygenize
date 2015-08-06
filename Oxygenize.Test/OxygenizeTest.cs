@@ -182,5 +182,26 @@ namespace Oxygenize.Test
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.GetType() == typeof(StringsClass));
         }
+
+        [Test]
+        public void Should_Generate_An_Instance_With_Reference_Types()
+        {
+            Oxygenize.AddSupport(typeof(PrimitiveTypes).ToString(), () => Oxygenize.For<PrimitiveTypes>().Instance);
+            Oxygenize.AddSupport(typeof(Collections).ToString(), () => Oxygenize.For<Collections>().Instance);
+
+            var instance = Oxygenize.For<InstanceTypes>().Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance.PrimitiveTypes);
+            Assert.IsNotNull(instance.Collections);
+            Assert.IsTrue(instance.GetType() == typeof(InstanceTypes));
+        }
+
+        class InstanceTypes
+        {
+            public PrimitiveTypes PrimitiveTypes { get; set; }
+
+            public Collections Collections { get; set; }
+        }
     }
 }
