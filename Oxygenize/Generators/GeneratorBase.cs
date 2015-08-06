@@ -6,16 +6,14 @@ namespace Oxygenize.Generators
     {
         protected const string Chars = "$%#@!*abcdefghijklmnopqrstuvwxyz1234567890?;:ABCDEFGHIJKLMNOPQRSTUVWXYZ^&";
 
-        protected int UpperBound; 
-        protected bool NullableReferenceTypes; 
+        protected Configuration Configuration; 
 
         protected Type Type;
         protected T Instance;
 
-        protected GeneratorBase(int upperBound, bool nullableReferenceTypes)
+        protected GeneratorBase(Configuration configuration)
         {
-            UpperBound = upperBound;
-            NullableReferenceTypes = nullableReferenceTypes;
+            Configuration = configuration;
         }  
 
         public T GetData()

@@ -40,7 +40,8 @@ namespace Oxygenize
     {
         private GenerationStrategy _strategy = GenerationStrategy.Random;
         private int _arrayUpperBound = 1000;
-        private bool _nullableReferenceTypes = false;
+        private bool _nullableReferenceTypes;
+        private int _maxStringLength = 4000;
 
         /// <summary>
         /// Returns an instance of the given type
@@ -52,16 +53,18 @@ namespace Oxygenize
 
         private T PopulateData()
         {
+            var configuration = new Configuration(_arrayUpperBound, _nullableReferenceTypes, _maxStringLength);
+
             T instance;
             switch (_strategy)
             {
                 case GenerationStrategy.Mixed:
                 case GenerationStrategy.Custom:
                 case GenerationStrategy.Random:
-                    instance = new RandomStrategyGenerator<T>(_arrayUpperBound, _nullableReferenceTypes).GetData();
+                    instance = new RandomStrategyGenerator<T>(configuration).GetData();
                     break;
                 default:
-                    instance = new RandomStrategyGenerator<T>(_arrayUpperBound, _nullableReferenceTypes).GetData();
+                    instance = new RandomStrategyGenerator<T>(configuration).GetData();
                     break;
             }
 
@@ -94,6 +97,15 @@ namespace Oxygenize
             _nullableReferenceTypes = areNullable;
             return this;
         }
+
+        /// <summary>
+        /// Sets maximum length of a generated string
+        /// </summary>
+        public Oxygenize<T> MaxStringLength(int maxLength)
+        {
+            _maxStringLength = maxLength;
+            return this;
+        }  
     }
 
     public enum GenerationStrategy

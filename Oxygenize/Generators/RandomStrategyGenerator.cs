@@ -7,8 +7,8 @@ namespace Oxygenize.Generators
 {
     class RandomStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
-        public RandomStrategyGenerator(int upperBound, bool nullableReferenceTypes)
-            : base(upperBound, nullableReferenceTypes)
+        public RandomStrategyGenerator(Configuration configuration)
+            : base(configuration)
         {
         }
 
@@ -65,7 +65,7 @@ namespace Oxygenize.Generators
 
         private object GetReferenceTypeValue(Type propertyType, bool cannotBeNull = false)
         {
-            if (NullableReferenceTypes && !cannotBeNull)
+            if (Configuration.NullableReferenceTypes && !cannotBeNull)
             {
                 return Randomizer.ShouldEnter() ? GetRandomReferenceTypeValue(propertyType) : null;
             }
@@ -112,7 +112,7 @@ namespace Oxygenize.Generators
                 var dictionaryType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
                 var dictionaryInstance = Activator.CreateInstance(dictionaryType);
                 var addMethod = dictionaryType.GetMethod("Add");
-                for (var i = 0; i <= randomizer.Next(UpperBound); i++)
+                for (var i = 0; i <= randomizer.Next(Configuration.ArrayUpperBound); i++)
                 {
                     addMethod.Invoke(dictionaryInstance, new[] { GetRandomValue(keyType, true), GetRandomValue(valueType) });
                 }
@@ -125,7 +125,7 @@ namespace Oxygenize.Generators
 
         private IEnumerable GetRandomEnumerable(Type genericType, Random randomizer)
         {
-            var enumerable = Enumerable.Range(0, randomizer.Next(UpperBound)).Select(x => GetRandomValue(genericType));
+            var enumerable = Enumerable.Range(0, randomizer.Next(Configuration.ArrayUpperBound)).Select(x => GetRandomValue(genericType));
             var methodInfo = typeof (Enumerable).GetMethod("Cast")
                 .MakeGenericMethod(genericType)
                 .Invoke(null, new object[] {enumerable}) as IEnumerable;
@@ -144,7 +144,7 @@ namespace Oxygenize.Generators
             var elementType = propertyType.GetElementType();
             var randomizer = new Randomizer().Instance;
 
-            var array = Array.CreateInstance(elementType, randomizer.Next(1, UpperBound));
+            var array = Array.CreateInstance(elementType, randomizer.Next(1, Configuration.ArrayUpperBound));
             var value = Enumerable.Range(0, array.Length - 1).Select(x => GetRandomValue(elementType)).ToArray();
             Array.Copy(value, array, value.Length);
 
