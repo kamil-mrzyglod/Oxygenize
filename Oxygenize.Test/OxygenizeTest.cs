@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using NUnit.Framework;
+using Oxygenize.Test.TestClasses;
 
 namespace Oxygenize.Test
 {
@@ -75,7 +77,7 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Generate_An_Instance_For_Custom_Types()
         {
-            Oxygenize.AddSupport("Oxygenize.Test.CustomStruct", () => new CustomStruct
+            Oxygenize.AddSupport("Oxygenize.Test.TestClasses.CustomStruct", () => new CustomStruct
             {
                 Id = 1
             });
@@ -112,23 +114,63 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Generate_An_Instance_With_Decimal()
         {
-            var instance = Oxygenize.For<DecimalTest>().Instance;
+            var instance = Oxygenize.For<DecimalTestClass>().Instance;
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.Decimal != 0);
             Assert.IsNotNull(instance.Decimals);
-            Assert.IsTrue(instance.GetType() == typeof(DecimalTest));
+            Assert.IsTrue(instance.GetType() == typeof(DecimalTestClass));
+        }
+
+        [Test]
+        public void Should_Generate_An_Instance_With_Random_Enum_Value()
+        {
+            var instance = Oxygenize.For<ClassWithEnums>().Instance;
+
+            TestEnum enumValue;
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(Enum.TryParse(instance.Enum.ToString(), out enumValue));
+            Assert.IsTrue(instance.GetType() == typeof(ClassWithEnums));
+        }
+
+        [Test]
+        public void Should_Generate_An_Instance_With_Non_Empty_Collections()
+        {
+            var instance = Oxygenize.For<Collections>().Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance.Ints);
+            Assert.IsNotEmpty(instance.Ints);
+            Assert.IsInstanceOf<IEnumerable<int>>(instance.Ints);
+            Assert.IsNotNull(instance.CollectionInts);
+            Assert.IsNotEmpty(instance.CollectionInts);
+            Assert.IsInstanceOf<ICollection<int>>(instance.CollectionInts);
+            Assert.IsNotNull(instance.ListInts);
+            Assert.IsNotEmpty(instance.ListInts);
+            Assert.IsInstanceOf<IList<int>>(instance.ListInts);
+            Assert.IsNotNull(instance.Dictionary);
+            Assert.IsNotEmpty(instance.Dictionary);
+            Assert.IsInstanceOf<IDictionary<int, decimal>>(instance.Dictionary);
+            Assert.IsTrue(instance.GetType() == typeof(Collections));
         }
     }
 
-    public class DecimalTest
+    public class Collections
     {
-        public decimal Decimal { get; set; }
+        public IEnumerable<int> Ints { get; set; }
 
-        public decimal? NullableDecimal { get; set; }
+        public IEnumerable<int?> NullableInts { get; set; }
 
-        public decimal[] Decimals { get; set; }
+        public IEnumerable<decimal> Decimals { get; set; }
 
-        public decimal?[] NullableDecimals { get; set; }
+        public ICollection<int> CollectionInts { get; set; } 
+
+        public ICollection<int?> CollectionNullableInts { get; set; }
+
+        public IList<int> ListInts { get; set; } 
+
+        public IList<int?> ListNullableInts { get; set; }
+
+        public IDictionary<int, decimal> Dictionary { get; set; } 
     }
 }
