@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using NUnit.Framework;
 using Oxygenize.Test.TestClasses;
 
 namespace Oxygenize.Test
@@ -131,5 +132,45 @@ namespace Oxygenize.Test
             Assert.IsTrue(Enum.TryParse(instance.Enum.ToString(), out enumValue));
             Assert.IsTrue(instance.GetType() == typeof(ClassWithEnums));
         }
+
+        [Test]
+        public void Should_Generate_An_Instance_With_Non_Empty_Collections()
+        {
+            var instance = Oxygenize.For<Collections>().Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsNotNull(instance.Ints);
+            Assert.IsNotEmpty(instance.Ints);
+            Assert.IsInstanceOf<IEnumerable<int>>(instance.Ints);
+            Assert.IsNotNull(instance.CollectionInts);
+            Assert.IsNotEmpty(instance.CollectionInts);
+            Assert.IsInstanceOf<ICollection<int>>(instance.CollectionInts);
+            Assert.IsNotNull(instance.ListInts);
+            Assert.IsNotEmpty(instance.ListInts);
+            Assert.IsInstanceOf<IList<int>>(instance.ListInts);
+            Assert.IsNotNull(instance.Dictionary);
+            Assert.IsNotEmpty(instance.Dictionary);
+            Assert.IsInstanceOf<IDictionary<int, decimal>>(instance.Dictionary);
+            Assert.IsTrue(instance.GetType() == typeof(Collections));
+        }
+    }
+
+    public class Collections
+    {
+        public IEnumerable<int> Ints { get; set; }
+
+        public IEnumerable<int?> NullableInts { get; set; }
+
+        public IEnumerable<decimal> Decimals { get; set; }
+
+        public ICollection<int> CollectionInts { get; set; } 
+
+        public ICollection<int?> CollectionNullableInts { get; set; }
+
+        public IList<int> ListInts { get; set; } 
+
+        public IList<int?> ListNullableInts { get; set; }
+
+        public IDictionary<int, decimal> Dictionary { get; set; } 
     }
 }
