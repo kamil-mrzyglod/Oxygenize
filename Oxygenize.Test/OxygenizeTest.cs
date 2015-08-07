@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Oxygenize.Test.TestClasses;
 
@@ -13,9 +14,7 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Create_Instance_Of_Given_Type()
         {
-            var instance = Oxygenize.For<PrimitiveTypes>()
-                            .WithStrategy(GenerationStrategy.Mixed)
-                            .Instance;
+            var instance = Oxygenize.For<PrimitiveTypes>().Instance;
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.Byte != default(byte));
@@ -35,9 +34,7 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Create_Instance_Of_Given_Nullable_Type()
         {
-            var instance = Oxygenize.For<NullablePrimitiveTypes>()
-                            .WithStrategy(GenerationStrategy.Mixed)
-                            .Instance;
+            var instance = Oxygenize.For<NullablePrimitiveTypes>().Instance;
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.GetType() == typeof(NullablePrimitiveTypes));
@@ -46,9 +43,7 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Create_Instance_Of_Given_Value_Type()
         {
-            var instance = Oxygenize.For<ValueTypes>()
-                            .WithStrategy(GenerationStrategy.Mixed)
-                            .Instance;
+            var instance = Oxygenize.For<ValueTypes>().Instance;
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.DateTime != default(DateTime));
@@ -202,6 +197,68 @@ namespace Oxygenize.Test
             public PrimitiveTypes PrimitiveTypes { get; set; }
 
             public Collections Collections { get; set; }
+        }
+
+        [Test]
+        public void Should_Generate_Strings_Not_Exceeding_Given_Length()
+        {
+            var instance = Oxygenize.For<StringArray>()
+                                    .UpperBound(100)
+                                    .MaxStringLength(100)
+                                    .MinStringLength(50)
+                                    .NullableReferenceTypes(false)
+                                    .Instance;
+
+            Assert.IsTrue(instance.Strings.All(x => x.Length <= 100));
+            Assert.IsTrue(instance.Strings.All(x => x.Length >= 50));
+        }
+
+        class StringArray
+        {
+            public string[] Strings { get; set; }
+        }
+
+        [Test]
+        public void Should_Execute_Selected_Constructor()
+        {
+            var instance = Oxygenize.For<ConstructorsTest>()
+                                    .WithConstructor(new []{typeof(int), typeof(string)}, new object[]{2, "TESTTEST"})
+                                    .Instance;
+
+            Assert.IsTrue(instance.Int == 2);
+            Assert.IsTrue(instance.String == "TESTTEST");
+
+            var baseInstance = Oxygenize.For<ConstructorsTest>().Instance;
+            Assert.IsTrue(baseInstance.Int == 1);
+            Assert.IsTrue(baseInstance.String == "TEST");
+        }
+
+        [Test]
+        public void Should_Create_An_Instance_With_Custom_Strategy()
+        {
+            var instance = Oxygenize.For<PrimitiveTypes>()
+                                    .WithStrategy(GenerationStrategy.Custom)
+                                    .Configure()
+                                        .Set(x => x.Bool, true)
+                                        .Set(x => x.Int, 123)
+                                        .Compile()
+                                    .Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.Bool);
+            Assert.IsTrue(instance.Int == 123);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "You cannot configure an instance for RandomGenerationStrategy.")]
+        public void Should_Throw_An_Exception_When_Trying_To_Configure_Properties_Using_Random_Strategy()
+        {
+            var instance = Oxygenize.For<PrimitiveTypes>()
+                                    .Configure()
+                                        .Set(x => x.Bool, true)
+                                        .Set(x => x.Int, 123)
+                                        .Compile()
+                                    .Instance;
         }
     }
 }

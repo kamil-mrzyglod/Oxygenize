@@ -7,8 +7,8 @@ namespace Oxygenize.Generators
 {
     class RandomStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
-        public RandomStrategyGenerator(int upperBound, bool nullableReferenceTypes)
-            : base(upperBound, nullableReferenceTypes)
+        public RandomStrategyGenerator(Configuration configuration)
+            : base(configuration)
         {
         }
 
@@ -65,7 +65,7 @@ namespace Oxygenize.Generators
 
         private object GetReferenceTypeValue(Type propertyType, bool cannotBeNull = false)
         {
-            if (NullableReferenceTypes && !cannotBeNull)
+            if (Configuration.NullableReferenceTypes && !cannotBeNull)
             {
                 return Randomizer.ShouldEnter() ? GetRandomReferenceTypeValue(propertyType) : null;
             }
@@ -73,14 +73,14 @@ namespace Oxygenize.Generators
             return GetRandomReferenceTypeValue(propertyType);
         }
 
-        private static object GetRandomReferenceTypeValue(Type propertyType)
+        private object GetRandomReferenceTypeValue(Type propertyType)
         {
             var randomizer = new Randomizer().Instance;
 
             switch (propertyType.ToString())
             {
                 case "System.String":
-                    return new string(Enumerable.Repeat(Chars, randomizer.Next(4000)).Select(s => s[randomizer.Next(s.Length)]).ToArray());
+                    return new string(Enumerable.Repeat(Chars, randomizer.Next(Configuration.MinStringLength, Configuration.MaximumStringLength)).Select(s => s[randomizer.Next(s.Length)]).ToArray());
                 default:
                     return Oxygenize.ObtainValue(propertyType.ToString());
             }
@@ -112,7 +112,7 @@ namespace Oxygenize.Generators
                 var dictionaryType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
                 var dictionaryInstance = Activator.CreateInstance(dictionaryType);
                 var addMethod = dictionaryType.GetMethod("Add");
-                for (var i = 0; i <= randomizer.Next(UpperBound); i++)
+                for (var i = 0; i <= randomizer.Next(Configuration.ArrayUpperBound); i++)
                 {
                     addMethod.Invoke(dictionaryInstance, new[] { GetRandomValue(keyType, true), GetRandomValue(valueType) });
                 }
@@ -125,7 +125,7 @@ namespace Oxygenize.Generators
 
         private IEnumerable GetRandomEnumerable(Type genericType, Random randomizer)
         {
-            var enumerable = Enumerable.Range(0, randomizer.Next(UpperBound)).Select(x => GetRandomValue(genericType));
+            var enumerable = Enumerable.Range(0, randomizer.Next(Configuration.ArrayUpperBound)).Select(x => GetRandomValue(genericType));
             var methodInfo = typeof (Enumerable).GetMethod("Cast")
                 .MakeGenericMethod(genericType)
                 .Invoke(null, new object[] {enumerable}) as IEnumerable;
@@ -144,8 +144,8 @@ namespace Oxygenize.Generators
             var elementType = propertyType.GetElementType();
             var randomizer = new Randomizer().Instance;
 
-            var array = Array.CreateInstance(elementType, randomizer.Next(1, UpperBound));
-            var value = Enumerable.Range(0, array.Length - 1).Select(x => GetRandomValue(elementType)).ToArray();
+            var array = Array.CreateInstance(elementType, randomizer.Next(1, Configuration.ArrayUpperBound));
+            var value = Enumerable.Range(0, array.Length).Select(x => GetRandomValue(elementType)).ToArray();
             Array.Copy(value, array, value.Length);
 
             return array;

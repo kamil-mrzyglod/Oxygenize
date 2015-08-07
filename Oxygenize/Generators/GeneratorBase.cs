@@ -6,23 +6,36 @@ namespace Oxygenize.Generators
     {
         protected const string Chars = "$%#@!*abcdefghijklmnopqrstuvwxyz1234567890?;:ABCDEFGHIJKLMNOPQRSTUVWXYZ^&";
 
-        protected int UpperBound; 
-        protected bool NullableReferenceTypes; 
+        protected Configuration Configuration; 
 
         protected Type Type;
         protected T Instance;
 
-        protected GeneratorBase(int upperBound, bool nullableReferenceTypes)
+        protected GeneratorBase(Configuration configuration)
         {
-            UpperBound = upperBound;
-            NullableReferenceTypes = nullableReferenceTypes;
+            Configuration = configuration;
         }  
 
         public T GetData()
         {
             Type = typeof (T);
-            Instance = new T();
 
+            if (Configuration.ConstructorParameters != null)
+            {
+                var type = typeof (T);
+                var constructor = type.GetConstructor(Configuration.ConstructorParameters.Item1);
+                if (constructor == null)
+                {
+                    throw new ArgumentException("Constructor with given types is not found.");
+                }
+
+                Instance = (T)constructor.Invoke(Configuration.ConstructorParameters.Item2);
+            }
+            else
+            {
+                Instance = new T();
+            }
+            
             return Generate();
         }
 

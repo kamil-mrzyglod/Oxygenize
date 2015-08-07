@@ -3,7 +3,7 @@ Populating your POCOs with totally randomized(or not at all!) data.
 
 Oxygenize is a small library, that helps you populate data to your POCOs. It supports three strategies of data generation:
 * `GenerationStrategy.Random`
-* `GenerationStrategy.Custom` (in development)
+* `GenerationStrategy.Custom`
 * `GenerationStrategy.Mixed` (in development)
 
 ## Installation
@@ -80,3 +80,24 @@ class InstanceTypes
     public Collections Collections { get; set; }
 }
 ```
+
+## API reference
+All available API methods are listed below:
+
+### Oxygenize
+* `void AddSupport(string typeName, Func<object> valueToObtain)` - adds support for given custom type. Type name is a Type.ToString() representation.
+* `Oxygenize<T> For<T>` - returns `Oxygenize<T>` object, which can be customized to populate necessary data for given parameter type. Parameter is constrained with `new()`
+
+### Oxygenize\<T\>
+* `PropertyConfigurator<T> Configure()` - returns a PropertyConfigurator, which can be used to configure properties using CustomGenerationStrategy
+* `T Instance` - returns an instance of constructed type. Used at the end of the methods chain.
+* `Oxygenize<T> MaxStringLength(int maxLength)` - sets maximum length for all generated strings
+* `Oxygenize<T> MinStringLength(int maxLength)` - sets minimum length for all generated strings
+* `Oxygenize<T> NullableReferenceTypes(bool areNullable)` - tells the generator whether reference types can be generated as `null`
+* `Oxygenize<T> UpperBound(int upperBound)` - sets upper bound of array elements count.
+* `Oxygenize<T> WithConstructor(Type[] types, object[] values)` - specifies constructor which should be used for an instance generation
+* `Oxygenize<T> WithStrategy(GenerationStrategy strategy = GenerationStrategy.Random)` - sets a strategy used for an instance generation
+
+### PropertyConfigurator<T>
+* `PropertyConfigurator<T> Set<TProp>(Expression<Func<T, TProp>> expression, TProp value)` - sets a given property value
+* `Oxygenize<T> Compile()` - finishes configuration
