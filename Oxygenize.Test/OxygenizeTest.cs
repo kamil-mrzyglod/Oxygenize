@@ -223,5 +223,38 @@ namespace Oxygenize.Test
         {
             public string[] Strings { get; set; }
         }
+
+        [Test]
+        public void Should_Execute_Selected_Constructor()
+        {
+            var instance = Oxygenize.For<ConstructorsTest>()
+                                    .WithConstructor(new []{typeof(int), typeof(string)}, new object[]{2, "TESTTEST"})
+                                    .Instance;
+
+            Assert.IsTrue(instance.Int == 2);
+            Assert.IsTrue(instance.String == "TESTTEST");
+
+            var baseInstance = Oxygenize.For<ConstructorsTest>().Instance;
+            Assert.IsTrue(baseInstance.Int == 1);
+            Assert.IsTrue(baseInstance.String == "TEST");
+        }
+    }
+
+    public class ConstructorsTest
+    {
+        public readonly int Int;
+        public readonly string String;
+
+        public ConstructorsTest()
+        {
+            Int = 1;
+            String = "TEST";
+        }
+
+        public ConstructorsTest(int @int, string @string)
+        {
+            Int = @int;
+            String = @string;
+        }
     }
 }

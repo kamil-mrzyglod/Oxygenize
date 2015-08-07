@@ -43,6 +43,7 @@ namespace Oxygenize
         private bool _nullableReferenceTypes;
         private int _maxStringLength = 4000;
         private int _minStringLength;
+        private Tuple<Type[], object[]> _constructorParameters;
 
         /// <summary>
         /// Returns an instance of the given type
@@ -54,7 +55,7 @@ namespace Oxygenize
 
         private T PopulateData()
         {
-            var configuration = new Configuration(_arrayUpperBound, _nullableReferenceTypes, _maxStringLength, _minStringLength);
+            var configuration = new Configuration(_arrayUpperBound, _nullableReferenceTypes, _maxStringLength, _minStringLength, _constructorParameters);
 
             T instance;
             switch (_strategy)
@@ -115,7 +116,18 @@ namespace Oxygenize
         {
             _minStringLength = minLength;
             return this;
-        }  
+        }
+
+        /// <summary>
+        /// Sets a constructor which should be called when creating an instance
+        /// </summary>
+        /// <param name="types">Parameters types</param>
+        /// <param name="values">Parameters values</param>
+        public Oxygenize<T> WithConstructor(Type[] types, object[] values)
+        {
+            _constructorParameters = new Tuple<Type[], object[]>(types, values);
+            return this;
+        } 
     }
 
     public enum GenerationStrategy
