@@ -141,6 +141,9 @@ namespace Oxygenize
 
         public PropertyConfigurator<T> Configure()
         {
+            if(_strategy == GenerationStrategy.Random)
+                throw new InvalidOperationException("You cannot configure an instance for RandomGenerationStrategy.");
+
             return _configurator;
         }  
     }
