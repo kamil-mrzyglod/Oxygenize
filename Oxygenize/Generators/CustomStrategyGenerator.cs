@@ -14,6 +14,14 @@
 
         protected override void SetProperties()
         {
+            foreach (var property in Type.GetProperties())
+            {
+                object value;
+                if (Configuration.ParametersConfiguration.TryGetValue(property.Name, out value))
+                {
+                    property.SetValue(Instance, value);
+                }               
+            }
         }
     }
 }

@@ -240,6 +240,7 @@ namespace Oxygenize.Test
                                     .WithStrategy(GenerationStrategy.Custom)
                                     .Configure()
                                         .Set(x => x.Bool, true)
+                                        .Set(x => x.Int, 123)
                                         .Compile()
                                     .Instance;
 

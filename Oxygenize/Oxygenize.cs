@@ -39,7 +39,7 @@ namespace Oxygenize
 
     public class Oxygenize<T> where T : new()
     {
-        private PropertyConfigurator<T> _configurator; 
+        private readonly PropertyConfigurator<T> _configurator; 
 
         private GenerationStrategy _strategy = GenerationStrategy.Random;
         private int _arrayUpperBound = 1000;
@@ -63,7 +63,7 @@ namespace Oxygenize
 
         private T PopulateData()
         {
-            var configuration = new Configuration(_arrayUpperBound, _nullableReferenceTypes, _maxStringLength, _minStringLength, _constructorParameters);
+            var configuration = new Configuration(_arrayUpperBound, _nullableReferenceTypes, _maxStringLength, _minStringLength, _constructorParameters, _configurator.PropertyConfiguration);
 
             T instance;
             switch (_strategy)
@@ -139,6 +139,10 @@ namespace Oxygenize
             return this;
         }
 
+        /// <summary>
+        /// Returns a PropertyConfigurator, which can be used to configure
+        /// properties using CustomGenerationStrategy
+        /// </summary>
         public PropertyConfigurator<T> Configure()
         {
             if(_strategy == GenerationStrategy.Random)
@@ -151,17 +155,38 @@ namespace Oxygenize
     public class PropertyConfigurator<T> where T : new()
     {
         private readonly Oxygenize<T> _oxygenize;
+        internal readonly ConcurrentDictionary<string, object> PropertyConfiguration = new ConcurrentDictionary<string, object>(); 
 
         internal PropertyConfigurator(Oxygenize<T> oxygenize)
         {
             _oxygenize = oxygenize;
         }
 
-        public PropertyConfigurator<T> Set(Expression<Func<T, object>> expression, object value)
+        /// <summary>
+        /// Sets a given property value
+        /// </summary>
+        public PropertyConfigurator<T> Set<TProp>(Expression<Func<T, TProp>> expression, TProp value)
         {
+            MemberExpression me;
+            switch (expression.Body.NodeType)
+            {
+                case ExpressionType.Convert:
+                case ExpressionType.ConvertChecked:
+                    var ue = expression.Body as UnaryExpression;
+                    me = ((ue != null) ? ue.Operand : null) as MemberExpression;
+                    break;
+                default:
+                    me = expression.Body as MemberExpression;
+                    break;
+            }
+
+            PropertyConfiguration.AddOrUpdate(me.Member.Name, value, (info, val) => val);
             return this;
         }
 
+        /// <summary>
+        /// Finishes configuration
+        /// </summary>
         public Oxygenize<T> Compile()
         {
             return _oxygenize;;
