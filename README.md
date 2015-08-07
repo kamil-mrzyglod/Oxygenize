@@ -80,3 +80,19 @@ class InstanceTypes
     public Collections Collections { get; set; }
 }
 ```
+
+## API reference
+All available API methods are listed below:
+
+### Oxygenize
+* `void AddSupport(string typeName, Func<object> valueToObtain)` - adds support for given custom type. Type name is a Type.ToString() representation.
+* `Oxygenize<T> For<T>` - returns `Oxygenize<T>` object, which can be customized to populate necessary data for given parameter type. Parameter is constrained with `new()`
+
+### Oxygenize<T>
+* `T Instance` - returns an instance of constructed type. Used at the end of the methods chain.
+* `Oxygenize<T> MaxStringLength(int maxLength)` - sets maximum length for all generated strings
+* `Oxygenize<T> MinStringLength(int maxLength)` - sets minimum length for all generated strings
+* `Oxygenize<T> NullableReferenceTypes(bool areNullable)` - tells the generator whether reference types can be generated as `null`
+* `Oxygenize<T> UpperBound(int upperBound)` - sets upper bound of array elements count.
+* `Oxygenize<T> WithConstructor(Type[] types, object[] values)` - specifies constructor which should be used for an instance generation
+* `Oxygenize<T> WithStrategy(GenerationStrategy strategy = GenerationStrategy.Random)` - sets a strategy used for an instance generation
