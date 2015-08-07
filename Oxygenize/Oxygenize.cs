@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq.Expressions;
 using Oxygenize.Generators;
 
 namespace Oxygenize
@@ -38,12 +39,19 @@ namespace Oxygenize
 
     public class Oxygenize<T> where T : new()
     {
+        private readonly PropertyConfigurator<T> _configurator; 
+
         private GenerationStrategy _strategy = GenerationStrategy.Random;
         private int _arrayUpperBound = 1000;
         private bool _nullableReferenceTypes;
         private int _maxStringLength = 4000;
         private int _minStringLength;
         private Tuple<Type[], object[]> _constructorParameters;
+
+        internal Oxygenize()
+        {
+            _configurator = new PropertyConfigurator<T>(this);
+        }   
 
         /// <summary>
         /// Returns an instance of the given type
@@ -55,13 +63,15 @@ namespace Oxygenize
 
         private T PopulateData()
         {
-            var configuration = new Configuration(_arrayUpperBound, _nullableReferenceTypes, _maxStringLength, _minStringLength, _constructorParameters);
+            var configuration = new Configuration(_arrayUpperBound, _nullableReferenceTypes, _maxStringLength, _minStringLength, _constructorParameters, _configurator.PropertyConfiguration);
 
             T instance;
             switch (_strategy)
             {
                 case GenerationStrategy.Mixed:
                 case GenerationStrategy.Custom:
+                    instance = new CustomStrategyGenerator<T>(configuration).GetData();
+                    break;
                 case GenerationStrategy.Random:
                     instance = new RandomStrategyGenerator<T>(configuration).GetData();
                     break;
@@ -127,6 +137,59 @@ namespace Oxygenize
         {
             _constructorParameters = new Tuple<Type[], object[]>(types, values);
             return this;
+        }
+
+        /// <summary>
+        /// Returns a PropertyConfigurator, which can be used to configure
+        /// properties using CustomGenerationStrategy
+        /// </summary>
+        public PropertyConfigurator<T> Configure()
+        {
+            if(_strategy == GenerationStrategy.Random)
+                throw new InvalidOperationException("You cannot configure an instance for RandomGenerationStrategy.");
+
+            return _configurator;
+        }  
+    }
+
+    public class PropertyConfigurator<T> where T : new()
+    {
+        private readonly Oxygenize<T> _oxygenize;
+        internal readonly ConcurrentDictionary<string, object> PropertyConfiguration = new ConcurrentDictionary<string, object>(); 
+
+        internal PropertyConfigurator(Oxygenize<T> oxygenize)
+        {
+            _oxygenize = oxygenize;
+        }
+
+        /// <summary>
+        /// Sets a given property value
+        /// </summary>
+        public PropertyConfigurator<T> Set<TProp>(Expression<Func<T, TProp>> expression, TProp value)
+        {
+            MemberExpression me;
+            switch (expression.Body.NodeType)
+            {
+                case ExpressionType.Convert:
+                case ExpressionType.ConvertChecked:
+                    var ue = expression.Body as UnaryExpression;
+                    me = ((ue != null) ? ue.Operand : null) as MemberExpression;
+                    break;
+                default:
+                    me = expression.Body as MemberExpression;
+                    break;
+            }
+
+            PropertyConfiguration.AddOrUpdate(me.Member.Name, value, (info, val) => val);
+            return this;
+        }
+
+        /// <summary>
+        /// Finishes configuration
+        /// </summary>
+        public Oxygenize<T> Compile()
+        {
+            return _oxygenize;;
         } 
     }
 
