@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq.Expressions;
 using Oxygenize.Generators;
 
 namespace Oxygenize
@@ -38,12 +39,19 @@ namespace Oxygenize
 
     public class Oxygenize<T> where T : new()
     {
+        private PropertyConfigurator<T> _configurator; 
+
         private GenerationStrategy _strategy = GenerationStrategy.Random;
         private int _arrayUpperBound = 1000;
         private bool _nullableReferenceTypes;
         private int _maxStringLength = 4000;
         private int _minStringLength;
         private Tuple<Type[], object[]> _constructorParameters;
+
+        internal Oxygenize()
+        {
+            _configurator = new PropertyConfigurator<T>(this);
+        }   
 
         /// <summary>
         /// Returns an instance of the given type
@@ -62,6 +70,8 @@ namespace Oxygenize
             {
                 case GenerationStrategy.Mixed:
                 case GenerationStrategy.Custom:
+                    instance = new CustomStrategyGenerator<T>(configuration).GetData();
+                    break;
                 case GenerationStrategy.Random:
                     instance = new RandomStrategyGenerator<T>(configuration).GetData();
                     break;
@@ -127,6 +137,31 @@ namespace Oxygenize
         {
             _constructorParameters = new Tuple<Type[], object[]>(types, values);
             return this;
+        }
+
+        public PropertyConfigurator<T> Configure()
+        {
+            return _configurator;
+        }  
+    }
+
+    public class PropertyConfigurator<T> where T : new()
+    {
+        private readonly Oxygenize<T> _oxygenize;
+
+        internal PropertyConfigurator(Oxygenize<T> oxygenize)
+        {
+            _oxygenize = oxygenize;
+        }
+
+        public PropertyConfigurator<T> Set(Expression<Func<T, object>> expression, object value)
+        {
+            return this;
+        }
+
+        public Oxygenize<T> Compile()
+        {
+            return _oxygenize;;
         } 
     }
 

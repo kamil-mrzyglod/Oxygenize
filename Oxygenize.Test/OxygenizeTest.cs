@@ -14,9 +14,7 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Create_Instance_Of_Given_Type()
         {
-            var instance = Oxygenize.For<PrimitiveTypes>()
-                            .WithStrategy(GenerationStrategy.Mixed)
-                            .Instance;
+            var instance = Oxygenize.For<PrimitiveTypes>().Instance;
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.Byte != default(byte));
@@ -36,9 +34,7 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Create_Instance_Of_Given_Nullable_Type()
         {
-            var instance = Oxygenize.For<NullablePrimitiveTypes>()
-                            .WithStrategy(GenerationStrategy.Mixed)
-                            .Instance;
+            var instance = Oxygenize.For<NullablePrimitiveTypes>().Instance;
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.GetType() == typeof(NullablePrimitiveTypes));
@@ -47,9 +43,7 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Create_Instance_Of_Given_Value_Type()
         {
-            var instance = Oxygenize.For<ValueTypes>()
-                            .WithStrategy(GenerationStrategy.Mixed)
-                            .Instance;
+            var instance = Oxygenize.For<ValueTypes>().Instance;
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.DateTime != default(DateTime));
@@ -238,23 +232,20 @@ namespace Oxygenize.Test
             Assert.IsTrue(baseInstance.Int == 1);
             Assert.IsTrue(baseInstance.String == "TEST");
         }
-    }
 
-    public class ConstructorsTest
-    {
-        public readonly int Int;
-        public readonly string String;
-
-        public ConstructorsTest()
+        [Test]
+        public void Should_Create_An_Instance_With_Custom_Strategy()
         {
-            Int = 1;
-            String = "TEST";
-        }
+            var instance = Oxygenize.For<PrimitiveTypes>()
+                                    .WithStrategy(GenerationStrategy.Custom)
+                                    .Configure()
+                                        .Set(x => x.Bool, true)
+                                        .Compile()
+                                    .Instance;
 
-        public ConstructorsTest(int @int, string @string)
-        {
-            Int = @int;
-            String = @string;
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.Bool);
+            Assert.IsTrue(instance.Int == 123);
         }
     }
 }
