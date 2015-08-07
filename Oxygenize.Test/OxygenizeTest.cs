@@ -248,5 +248,17 @@ namespace Oxygenize.Test
             Assert.IsTrue(instance.Bool);
             Assert.IsTrue(instance.Int == 123);
         }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "You cannot configure an instance for RandomGenerationStrategy.")]
+        public void Should_Throw_An_Exception_When_Trying_To_Configure_Properties_Using_Random_Strategy()
+        {
+            var instance = Oxygenize.For<PrimitiveTypes>()
+                                    .Configure()
+                                        .Set(x => x.Bool, true)
+                                        .Set(x => x.Int, 123)
+                                        .Compile()
+                                    .Instance;
+        }
     }
 }
