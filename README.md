@@ -4,7 +4,7 @@ Populating your POCOs with totally randomized(or not at all!) data.
 Oxygenize is a small library, that helps you populate data to your POCOs. It supports three strategies of data generation:
 * `GenerationStrategy.Random`
 * `GenerationStrategy.Custom`
-* `GenerationStrategy.Mixed` (in development)
+* `GenerationStrategy.Mixed`
 
 ## Installation
 Oxygenize can be installed using NuGet Packages Manager:
