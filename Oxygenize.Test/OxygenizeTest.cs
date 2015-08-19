@@ -260,5 +260,22 @@ namespace Oxygenize.Test
                                         .Compile()
                                     .Instance;
         }
+
+        [Test]
+        public void Should_Create_An_Instance_With_Mixed_Strategy()
+        {
+            var instance = Oxygenize.For<PrimitiveTypes>()
+                                    .WithStrategy(GenerationStrategy.Mixed)
+                                    .Configure()
+                                        .Set(x => x.Bool, true)
+                                        .Set(x => x.Int, 123)
+                                        .Compile()
+                                    .Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.Bool);
+            Assert.IsTrue(instance.Int == 123);
+            Assert.IsTrue(instance.Long != default(long));
+        }
     }
 }
