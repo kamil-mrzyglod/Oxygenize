@@ -260,5 +260,32 @@ namespace Oxygenize.Test
                                         .Compile()
                                     .Instance;
         }
+
+        [Test]
+        public void Should_Create_An_Instance_With_Mixed_Strategy()
+        {
+            var instance = Oxygenize.For<PrimitiveTypes>()
+                                    .WithStrategy(GenerationStrategy.Mixed)
+                                    .Configure()
+                                        .Set(x => x.Bool, true)
+                                        .Set(x => x.Int, 123)
+                                        .Compile()
+                                    .Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.Bool);
+            Assert.IsTrue(instance.Int == 123);
+            Assert.IsTrue(instance.Long != default(long));
+            Assert.IsTrue(instance.Byte != default(byte));
+            Assert.IsTrue(instance.Char != default(char));
+            Assert.IsTrue(Math.Abs(instance.Double - default(double)) > 0.000001);
+            Assert.IsTrue(Math.Abs(instance.Float - default(float)) > float.MinValue);
+            Assert.IsTrue(instance.Sbyte != default(sbyte));
+            Assert.IsTrue(instance.Short != default(short));
+            Assert.IsTrue(instance.Uint != default(uint));
+            Assert.IsTrue(instance.Ulong != default(ulong));
+            Assert.IsTrue(instance.Ushort != default(ushort));
+            Assert.IsTrue(instance.GetType() == typeof(PrimitiveTypes));
+        }
     }
 }

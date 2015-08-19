@@ -14,7 +14,7 @@ namespace Oxygenize.Generators
 
         protected override T Generate()
         {
-            SetProperties();
+            this.SetProperties();
             return Instance;
         }
 
