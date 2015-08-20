@@ -7,6 +7,10 @@ namespace Oxygenize.Generators
 {
     class RandomStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
+        internal RandomStrategyGenerator()
+        {
+        } 
+
         public RandomStrategyGenerator(Configuration configuration)
             : base(configuration)
         {
@@ -27,7 +31,12 @@ namespace Oxygenize.Generators
             }
         }
 
-        private object GetRandomValue(Type propertyType, bool cannotBeNull = false)
+        internal static object GetRandomPropertyValue(Type propertyType, string mask)
+        {
+            return new RandomStrategyGenerator<T>().GetRandomValue(propertyType, false, mask);
+        }
+
+        private object GetRandomValue(Type propertyType, bool cannotBeNull = false, string mask = null)
         {
             if (propertyType.IsPrimitive)
             {

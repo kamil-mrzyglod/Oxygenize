@@ -12,6 +12,8 @@ namespace Oxygenize.Generators
         protected Type Type;
         protected T Instance;
 
+        protected GeneratorBase() {} 
+
         protected GeneratorBase(Configuration configuration)
         {
             Configuration = configuration;
@@ -48,8 +50,14 @@ namespace Oxygenize.Generators
             PropertyConfiguration configuration;
             if (Configuration.ParametersConfigurations.TryGetValue(property.Name, out configuration))
             {
+                if (!string.IsNullOrWhiteSpace(configuration.Mask))
+                {
+                    property.SetValue(Instance, RandomStrategyGenerator<T>.GetRandomPropertyValue(property.PropertyType, configuration.Mask));
+                    return;
+                }
+
                 property.SetValue(Instance, configuration.Value);
-            }  
+            }
         }
     }
 }

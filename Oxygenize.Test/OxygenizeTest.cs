@@ -303,6 +303,17 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Create_An_Instance_With_Properties_Masks()
         {
+            var instance = Oxygenize.For<PrimitiveTypes>()
+                                    .WithStrategy(GenerationStrategy.Mixed)
+                                    .Configure()
+                                        .Prop(x => x.Int)
+                                            .Mask("000")
+                                            .Set()
+                                        .Compile()
+                                    .Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.Int.ToString().Length == 3);
         }
     }
 }
