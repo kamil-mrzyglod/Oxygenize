@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Oxygenize.Generators
 {
@@ -41,5 +42,14 @@ namespace Oxygenize.Generators
 
         protected abstract T Generate();
         protected abstract void SetProperties();
+
+        protected void SetProperty(PropertyInfo property)
+        {
+            PropertyConfiguration configuration;
+            if (Configuration.ParametersConfigurations.TryGetValue(property.Name, out configuration))
+            {
+                property.SetValue(Instance, configuration.Value);
+            }  
+        }
     }
 }

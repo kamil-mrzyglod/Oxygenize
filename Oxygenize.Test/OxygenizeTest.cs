@@ -299,5 +299,10 @@ namespace Oxygenize.Test
             Assert.IsTrue(instance.Ushort != default(ushort));
             Assert.IsTrue(instance.GetType() == typeof(PrimitiveTypes));
         }
+
+        [Test]
+        public void Should_Create_An_Instance_With_Properties_Masks()
+        {
+        }
     }
 }

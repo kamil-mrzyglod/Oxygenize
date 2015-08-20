@@ -19,11 +19,7 @@
             base.SetProperties();
             foreach (var property in Type.GetProperties())
             {
-                PropertyConfiguration configuration;
-                if (Configuration.ParametersConfigurations.TryGetValue(property.Name, out configuration))
-                {
-                    property.SetValue(Instance, configuration.Value);
-                }
+                SetProperty(property);             
             }
         }
     }

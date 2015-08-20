@@ -232,6 +232,9 @@ namespace Oxygenize
             return this;
         }
 
+        /// <summary>
+        /// Sets a property mask
+        /// </summary>
         public SpecificPropertyConfigurator<T, TProp> Mask(string mask)
         {
             _mask = mask;
