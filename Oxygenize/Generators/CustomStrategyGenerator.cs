@@ -16,10 +16,10 @@
         {
             foreach (var property in Type.GetProperties())
             {
-                object value;
-                if (Configuration.ParametersConfiguration.TryGetValue(property.Name, out value))
+                PropertyConfiguration configuration;
+                if (Configuration.ParametersConfigurations.TryGetValue(property.Name, out configuration))
                 {
-                    property.SetValue(Instance, value);
+                    property.SetValue(Instance, configuration.Value);
                 }               
             }
         }

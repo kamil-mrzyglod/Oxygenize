@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Linq.Expressions;
 using Oxygenize.Generators;
 
@@ -63,7 +64,7 @@ namespace Oxygenize
 
         private T PopulateData()
         {
-            var configuration = new Configuration(_arrayUpperBound, _nullableReferenceTypes, _maxStringLength, _minStringLength, _constructorParameters, _configurator.PropertyConfiguration);
+            var configuration = new Configuration(_arrayUpperBound, _nullableReferenceTypes, _maxStringLength, _minStringLength, _constructorParameters, _configurator.PropertyConfigurations);
 
             T instance;
             switch (_strategy)
@@ -157,7 +158,7 @@ namespace Oxygenize
     public class PropertyConfigurator<T> where T : new()
     {
         private readonly Oxygenize<T> _oxygenize;
-        internal readonly ConcurrentDictionary<string, object> PropertyConfiguration = new ConcurrentDictionary<string, object>(); 
+        internal readonly ConcurrentDictionary<string, PropertyConfiguration> PropertyConfigurations = new ConcurrentDictionary<string, PropertyConfiguration>(); 
 
         internal PropertyConfigurator(Oxygenize<T> oxygenize)
         {
@@ -167,7 +168,7 @@ namespace Oxygenize
         /// <summary>
         /// Sets the specific property configurator
         /// </summary>
-        public SpecificPropertyConfigurator<T> Prop<TProp>(Expression<Func<T, TProp>> expression)
+        public SpecificPropertyConfigurator<T, TProp> Prop<TProp>(Expression<Func<T, TProp>> expression)
         {
             MemberExpression me;
             switch (expression.Body.NodeType)
@@ -180,9 +181,10 @@ namespace Oxygenize
                 default:
                     me = expression.Body as MemberExpression;
                     break;
+
             }
 
-            return new SpecificPropertyConfigurator<T>(this, me);
+            return new SpecificPropertyConfigurator<T, TProp>(this, me);
         }
 
         /// <summary>
@@ -194,10 +196,26 @@ namespace Oxygenize
         } 
     }
 
-    public class SpecificPropertyConfigurator<T> where T : new()
+    internal class PropertyConfiguration
+    {
+        public readonly object Value;
+
+        public readonly string Mask;
+
+        public PropertyConfiguration(object value, string mask)
+        {
+            Value = value;
+            Mask = mask;
+        }
+    }
+
+    public class SpecificPropertyConfigurator<T, TProp> where T : new()
     {
         private readonly PropertyConfigurator<T> _propertyConfigurator;
         private readonly MemberExpression _expression;
+
+        private object _value;
+        private string _mask;
 
         internal SpecificPropertyConfigurator(PropertyConfigurator<T> propertyConfigurator, MemberExpression expression)
         {
@@ -208,9 +226,15 @@ namespace Oxygenize
         /// <summary>
         /// Sets a property value
         /// </summary>
-        public SpecificPropertyConfigurator<T> WithValue<TProp>(TProp value)
+        public SpecificPropertyConfigurator<T, TProp> WithValue(TProp value)
         {
-            _propertyConfigurator.PropertyConfiguration.AddOrUpdate(_expression.Member.Name, value, (info, val) => val);
+            _value = value;
+            return this;
+        }
+
+        public SpecificPropertyConfigurator<T, TProp> Mask(string mask)
+        {
+            _mask = mask;
             return this;
         }
 
@@ -219,6 +243,7 @@ namespace Oxygenize
         /// </summary>
         public PropertyConfigurator<T> Set()
         {
+            _propertyConfigurator.PropertyConfigurations.AddOrUpdate(_expression.Member.Name, s => new PropertyConfiguration(_value, _mask), (info, val) => val);
             return _propertyConfigurator;
         } 
     }
