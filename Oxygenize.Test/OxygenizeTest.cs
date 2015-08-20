@@ -239,8 +239,12 @@ namespace Oxygenize.Test
             var instance = Oxygenize.For<PrimitiveTypes>()
                                     .WithStrategy(GenerationStrategy.Custom)
                                     .Configure()
-                                        .Set(x => x.Bool, true)
-                                        .Set(x => x.Int, 123)
+                                        .Prop(x => x.Bool)
+                                            .WithValue(true)
+                                            .Set()
+                                        .Prop(x => x.Int)
+                                            .WithValue(123)
+                                            .Set()
                                         .Compile()
                                     .Instance;
 
@@ -255,8 +259,12 @@ namespace Oxygenize.Test
         {
             var instance = Oxygenize.For<PrimitiveTypes>()
                                     .Configure()
-                                        .Set(x => x.Bool, true)
-                                        .Set(x => x.Int, 123)
+                                        .Prop(x => x.Bool)
+                                            .WithValue(true)
+                                            .Set()
+                                        .Prop(x => x.Int)
+                                            .WithValue(123)
+                                            .Set()
                                         .Compile()
                                     .Instance;
         }
@@ -267,8 +275,12 @@ namespace Oxygenize.Test
             var instance = Oxygenize.For<PrimitiveTypes>()
                                     .WithStrategy(GenerationStrategy.Mixed)
                                     .Configure()
-                                        .Set(x => x.Bool, true)
-                                        .Set(x => x.Int, 123)
+                                        .Prop(x => x.Bool)
+                                            .WithValue(true)
+                                            .Set()
+                                        .Prop(x => x.Int)
+                                            .WithValue(123)
+                                            .Set()
                                         .Compile()
                                     .Instance;
 

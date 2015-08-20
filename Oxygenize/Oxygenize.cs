@@ -165,9 +165,9 @@ namespace Oxygenize
         }
 
         /// <summary>
-        /// Sets a given property value
+        /// Sets the specific property configurator
         /// </summary>
-        public PropertyConfigurator<T> Set<TProp>(Expression<Func<T, TProp>> expression, TProp value)
+        public SpecificPropertyConfigurator<T> Prop<TProp>(Expression<Func<T, TProp>> expression)
         {
             MemberExpression me;
             switch (expression.Body.NodeType)
@@ -182,8 +182,7 @@ namespace Oxygenize
                     break;
             }
 
-            PropertyConfiguration.AddOrUpdate(me.Member.Name, value, (info, val) => val);
-            return this;
+            return new SpecificPropertyConfigurator<T>(this, me);
         }
 
         /// <summary>
@@ -192,6 +191,35 @@ namespace Oxygenize
         public Oxygenize<T> Compile()
         {
             return _oxygenize;;
+        } 
+    }
+
+    public class SpecificPropertyConfigurator<T> where T : new()
+    {
+        private readonly PropertyConfigurator<T> _propertyConfigurator;
+        private readonly MemberExpression _expression;
+
+        internal SpecificPropertyConfigurator(PropertyConfigurator<T> propertyConfigurator, MemberExpression expression)
+        {
+            _propertyConfigurator = propertyConfigurator;
+            _expression = expression;
+        }
+
+        /// <summary>
+        /// Sets a property value
+        /// </summary>
+        public SpecificPropertyConfigurator<T> WithValue<TProp>(TProp value)
+        {
+            _propertyConfigurator.PropertyConfiguration.AddOrUpdate(_expression.Member.Name, value, (info, val) => val);
+            return this;
+        }
+
+        /// <summary>
+        /// Saves the property configuration and allows for further method chain
+        /// </summary>
+        public PropertyConfigurator<T> Set()
+        {
+            return _propertyConfigurator;
         } 
     }
 
