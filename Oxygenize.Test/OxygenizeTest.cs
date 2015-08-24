@@ -332,5 +332,22 @@ namespace Oxygenize.Test
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.Int.ToString().Length == 3);
         }
+
+        [Test]
+        public void Should_Create_An_Instance_With_Properties_Masks_And_Custom_Placeholder()
+        {
+            var instance = Oxygenize.For<StringsClass>()
+                                    .WithStrategy(GenerationStrategy.Mixed)
+                                    .Configure()
+                                        .Prop(x => x.String)
+                                            .Mask("???-???", '?')
+                                            .Set()
+                                        .Compile()
+                                    .Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.String.Length == 7);
+            Assert.IsTrue(instance.String.Contains("-"));
+        }
     }
 }

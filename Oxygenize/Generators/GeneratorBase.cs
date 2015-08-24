@@ -52,7 +52,7 @@ namespace Oxygenize.Generators
             {
                 if (!string.IsNullOrWhiteSpace(configuration.Mask))
                 {
-                    property.SetValue(Instance, RandomStrategyGenerator<T>.GetRandomPropertyValue(property.PropertyType, configuration.Mask));
+                    property.SetValue(Instance, RandomStrategyGenerator<T>.GetRandomPropertyValue(property.PropertyType, configuration.Mask, configuration.Placeholder));
                     return;
                 }
 

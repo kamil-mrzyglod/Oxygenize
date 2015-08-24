@@ -202,10 +202,13 @@ namespace Oxygenize
 
         public readonly string Mask;
 
-        public PropertyConfiguration(object value, string mask)
+        public readonly char Placeholder;
+
+        public PropertyConfiguration(object value, string mask, char placeholder)
         {
             Value = value;
             Mask = mask;
+            Placeholder = placeholder;
         }
     }
 
@@ -216,6 +219,7 @@ namespace Oxygenize
 
         private object _value;
         private string _mask;
+        private char _placeholder;
 
         internal SpecificPropertyConfigurator(PropertyConfigurator<T> propertyConfigurator, MemberExpression expression)
         {
@@ -233,9 +237,9 @@ namespace Oxygenize
         }
 
         /// <summary>
-        /// Sets a property mask
+        /// Sets a property mask. Note it can be used only with `string` property.
         /// </summary>
-        public SpecificPropertyConfigurator<T, TProp> Mask(string mask)
+        public SpecificPropertyConfigurator<T, TProp> Mask(string mask, char placeholder = '\0')
         {
             if (typeof (TProp) != typeof(string))
             {
@@ -243,6 +247,7 @@ namespace Oxygenize
             }
 
             _mask = mask;
+            _placeholder = placeholder;
             return this;
         }
 
@@ -251,7 +256,7 @@ namespace Oxygenize
         /// </summary>
         public PropertyConfigurator<T> Set()
         {
-            _propertyConfigurator.PropertyConfigurations.AddOrUpdate(_expression.Member.Name, s => new PropertyConfiguration(_value, _mask), (info, val) => val);
+            _propertyConfigurator.PropertyConfigurations.AddOrUpdate(_expression.Member.Name, s => new PropertyConfiguration(_value, _mask, _placeholder), (info, val) => val);
             return _propertyConfigurator;
         } 
     }

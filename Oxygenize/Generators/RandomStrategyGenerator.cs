@@ -5,14 +5,18 @@ using System.Linq;
 
 namespace Oxygenize.Generators
 {
+    using System.Text;
+
     class RandomStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
-        private string _mask;
+        private readonly string _mask;
+        private readonly char _placeholder;
 
-        internal RandomStrategyGenerator(string mask)
+        internal RandomStrategyGenerator(string mask, char placeholder)
             : base(new Configuration(1000, false, 0, 0, null, null))
         {
             _mask = mask;
+            _placeholder = placeholder;
         } 
 
         public RandomStrategyGenerator(Configuration configuration)
@@ -35,9 +39,9 @@ namespace Oxygenize.Generators
             }
         }
 
-        internal static object GetRandomPropertyValue(Type propertyType, string mask)
+        internal static object GetRandomPropertyValue(Type propertyType, string mask, char placeholder)
         {
-            return new RandomStrategyGenerator<T>(mask).GetRandomValue(propertyType);
+            return new RandomStrategyGenerator<T>(mask, placeholder).GetRandomValue(propertyType);
         }
 
         private object GetRandomValue(Type propertyType, bool cannotBeNull = false)
@@ -95,10 +99,24 @@ namespace Oxygenize.Generators
                 case "System.String":
                     if (!string.IsNullOrWhiteSpace(_mask))
                     {
-                        return new string(Enumerable.Repeat(Chars, randomizer.Next(_mask.Length, _mask.Length)).Select(s => s[randomizer.Next(s.Length)]).ToArray());
+                        var sb = new StringBuilder();
+                        foreach (var placeholder in _mask)
+                        {
+                            if (placeholder == _placeholder)
+                            {
+                                sb.Append(GetRandomPrimitiveValue(typeof(char)));
+                            }
+                            else
+                            {
+                                sb.Append(placeholder);
+                            }
+                        }
+
+                        return sb.ToString(0, _mask.Length);
                     }
 
                     return new string(Enumerable.Repeat(Chars, randomizer.Next(Configuration.MinStringLength, Configuration.MaximumStringLength)).Select(s => s[randomizer.Next(s.Length)]).ToArray());
+
                 default:
                     return Oxygenize.ObtainValue(propertyType.ToString());
             }
