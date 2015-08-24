@@ -303,6 +303,23 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Create_An_Instance_With_Properties_Masks()
         {
+            var instance = Oxygenize.For<StringsClass>()
+                                    .WithStrategy(GenerationStrategy.Mixed)
+                                    .Configure()
+                                        .Prop(x => x.String)
+                                            .Mask("000")
+                                            .Set()
+                                        .Compile()
+                                    .Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.String.Length == 3);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Cannot set mask for the type other than string.")]
+        public void Should_Throw_An_Exception_When_Trying_To_Set_Mask_For_Other_Type_Than_String()
+        {
             var instance = Oxygenize.For<PrimitiveTypes>()
                                     .WithStrategy(GenerationStrategy.Mixed)
                                     .Configure()

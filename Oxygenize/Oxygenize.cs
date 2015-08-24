@@ -237,6 +237,11 @@ namespace Oxygenize
         /// </summary>
         public SpecificPropertyConfigurator<T, TProp> Mask(string mask)
         {
+            if (typeof (TProp) != typeof(string))
+            {
+                throw new InvalidOperationException("Cannot set mask for the type other than string.");
+            }
+
             _mask = mask;
             return this;
         }

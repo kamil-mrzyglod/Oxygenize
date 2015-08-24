@@ -7,8 +7,12 @@ namespace Oxygenize.Generators
 {
     class RandomStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
-        internal RandomStrategyGenerator()
+        private string _mask;
+
+        internal RandomStrategyGenerator(string mask)
+            : base(new Configuration(1000, false, 0, 0, null, null))
         {
+            _mask = mask;
         } 
 
         public RandomStrategyGenerator(Configuration configuration)
@@ -33,10 +37,10 @@ namespace Oxygenize.Generators
 
         internal static object GetRandomPropertyValue(Type propertyType, string mask)
         {
-            return new RandomStrategyGenerator<T>().GetRandomValue(propertyType, false, mask);
+            return new RandomStrategyGenerator<T>(mask).GetRandomValue(propertyType);
         }
 
-        private object GetRandomValue(Type propertyType, bool cannotBeNull = false, string mask = null)
+        private object GetRandomValue(Type propertyType, bool cannotBeNull = false)
         {
             if (propertyType.IsPrimitive)
             {
@@ -89,6 +93,11 @@ namespace Oxygenize.Generators
             switch (propertyType.ToString())
             {
                 case "System.String":
+                    if (!string.IsNullOrWhiteSpace(_mask))
+                    {
+                        return new string(Enumerable.Repeat(Chars, randomizer.Next(_mask.Length, _mask.Length)).Select(s => s[randomizer.Next(s.Length)]).ToArray());
+                    }
+
                     return new string(Enumerable.Repeat(Chars, randomizer.Next(Configuration.MinStringLength, Configuration.MaximumStringLength)).Select(s => s[randomizer.Next(s.Length)]).ToArray());
                 default:
                     return Oxygenize.ObtainValue(propertyType.ToString());
