@@ -114,11 +114,11 @@ All available API methods are listed below:
 * `Oxygenize<T> WithConstructor(Type[] types, object[] values)` - specifies constructor which should be used for an instance generation
 * `Oxygenize<T> WithStrategy(GenerationStrategy strategy = GenerationStrategy.Random)` - sets a strategy used for an instance generation
 
-### PropertyConfigurator<T>
+### PropertyConfigurator\<T\>
 * `SpecificPropertyConfigurator<T, TProp> Prop<TProp>(Expression<Func<T, TProp>> expression)` - enables to configure specific property
 * `Oxygenize<T> Compile()` - finishes configuration
 
-### SpecificPropertyConfigurator<T, TProp>
+### SpecificPropertyConfigurator\<T, TProp\>
 * `SpecificPropertyConfigurator<T, TProp> WithValue(TProp value)` - sets a property value
 * `SpecificPropertyConfigurator<T, TProp> Mask(string mask, char placeholder = '\0')` - sets a property mask. Note it can be used only with `string` property.
 * `PropertyConfigurator<T> Set()` - saves the property configuration and allows for further method chain
