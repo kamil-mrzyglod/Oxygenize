@@ -4,7 +4,7 @@ Populating your POCOs with totally randomized(or not at all!) data.
 Oxygenize is a small library, that helps you populate data to your POCOs. It supports three strategies of data generation:
 * `GenerationStrategy.Random`
 * `GenerationStrategy.Custom`
-* `GenerationStrategy.Mixed` (in development)
+* `GenerationStrategy.Mixed`
 
 ## Installation
 Oxygenize can be installed using NuGet Packages Manager:
@@ -56,6 +56,22 @@ this method takes two arguments:
 
 All supported types are stored using internal `ConcurrentDictionary` static field so once registered, they stay there until `AppDomain` is unloaded.
 
+## Mask support
+It is possible to specify a mask which should be used for property value generation. There are two conditions however:
+* you are using `GenerationStrategy.Mixed`
+* the property you are trying to configure is a `string`
+
+The usage is simple:
+```
+var instance = Oxygenize.For<StringsClass>()
+                        .WithStrategy(GenerationStrategy.Mixed)
+                        .Configure()
+                            .Prop(x => x.String)
+                                .Mask("???-???", '?')
+                                .Set()
+                            .Compile()
+                        .Instance;
+```
 ## Example usage
 ```
 [Test]
@@ -89,7 +105,7 @@ All available API methods are listed below:
 * `Oxygenize<T> For<T>` - returns `Oxygenize<T>` object, which can be customized to populate necessary data for given parameter type. Parameter is constrained with `new()`
 
 ### Oxygenize\<T\>
-* `PropertyConfigurator<T> Configure()` - returns a PropertyConfigurator, which can be used to configure properties using CustomGenerationStrategy
+* `PropertyConfigurator<T> Configure()` - returns a PropertyConfigurator, which can be used to configure properties using Custom/MixedGenerationStrategy
 * `T Instance` - returns an instance of constructed type. Used at the end of the methods chain.
 * `Oxygenize<T> MaxStringLength(int maxLength)` - sets maximum length for all generated strings
 * `Oxygenize<T> MinStringLength(int maxLength)` - sets minimum length for all generated strings
@@ -98,6 +114,11 @@ All available API methods are listed below:
 * `Oxygenize<T> WithConstructor(Type[] types, object[] values)` - specifies constructor which should be used for an instance generation
 * `Oxygenize<T> WithStrategy(GenerationStrategy strategy = GenerationStrategy.Random)` - sets a strategy used for an instance generation
 
-### PropertyConfigurator<T>
-* `PropertyConfigurator<T> Set<TProp>(Expression<Func<T, TProp>> expression, TProp value)` - sets a given property value
+### PropertyConfigurator\<T\>
+* `SpecificPropertyConfigurator<T, TProp> Prop<TProp>(Expression<Func<T, TProp>> expression)` - enables to configure specific property
 * `Oxygenize<T> Compile()` - finishes configuration
+
+### SpecificPropertyConfigurator\<T, TProp\>
+* `SpecificPropertyConfigurator<T, TProp> WithValue(TProp value)` - sets a property value
+* `SpecificPropertyConfigurator<T, TProp> Mask(string mask, char placeholder = '\0')` - sets a property mask. Note it can be used only with `string` property.
+* `PropertyConfigurator<T> Set()` - saves the property configuration and allows for further method chain

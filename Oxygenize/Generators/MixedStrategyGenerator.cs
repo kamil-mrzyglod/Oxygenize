@@ -1,19 +1,22 @@
 ﻿namespace Oxygenize.Generators
 {
-    class CustomStrategyGenerator<T> : GeneratorBase<T> where T : new()
+    class MixedStrategyGenerator<T> : RandomStrategyGenerator<T> where T : new()
     {
-        public CustomStrategyGenerator(Configuration configuration) : base(configuration)
+        public MixedStrategyGenerator(Configuration configuration) : base(configuration)
         {
         }
 
         protected override T Generate()
         {
+            base.Generate();
+
             SetProperties();
             return Instance;
         }
 
         protected override void SetProperties()
         {
+            base.SetProperties();
             foreach (var property in Type.GetProperties())
             {
                 SetProperty(property);             

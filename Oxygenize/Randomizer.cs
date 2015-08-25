@@ -2,7 +2,7 @@
 
 namespace Oxygenize
 {
-    public class Randomizer
+    internal class Randomizer
     {
         private static Random random;
 
@@ -20,7 +20,7 @@ namespace Oxygenize
     /// <summary>
     /// Taken from http://stackoverflow.com/questions/609501/generating-a-random-decimal-in-c-sharp Jon Skeet's answer
     /// </summary>
-    public static class RandomizerExtensions
+    internal static class RandomizerExtensions
     {
         public static int NextInt32(this Random rng)
         {
