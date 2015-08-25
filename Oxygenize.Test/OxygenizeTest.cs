@@ -239,8 +239,12 @@ namespace Oxygenize.Test
             var instance = Oxygenize.For<PrimitiveTypes>()
                                     .WithStrategy(GenerationStrategy.Custom)
                                     .Configure()
-                                        .Set(x => x.Bool, true)
-                                        .Set(x => x.Int, 123)
+                                        .Prop(x => x.Bool)
+                                            .WithValue(true)
+                                            .Set()
+                                        .Prop(x => x.Int)
+                                            .WithValue(123)
+                                            .Set()
                                         .Compile()
                                     .Instance;
 
@@ -255,8 +259,12 @@ namespace Oxygenize.Test
         {
             var instance = Oxygenize.For<PrimitiveTypes>()
                                     .Configure()
-                                        .Set(x => x.Bool, true)
-                                        .Set(x => x.Int, 123)
+                                        .Prop(x => x.Bool)
+                                            .WithValue(true)
+                                            .Set()
+                                        .Prop(x => x.Int)
+                                            .WithValue(123)
+                                            .Set()
                                         .Compile()
                                     .Instance;
         }
@@ -267,8 +275,12 @@ namespace Oxygenize.Test
             var instance = Oxygenize.For<PrimitiveTypes>()
                                     .WithStrategy(GenerationStrategy.Mixed)
                                     .Configure()
-                                        .Set(x => x.Bool, true)
-                                        .Set(x => x.Int, 123)
+                                        .Prop(x => x.Bool)
+                                            .WithValue(true)
+                                            .Set()
+                                        .Prop(x => x.Int)
+                                            .WithValue(123)
+                                            .Set()
                                         .Compile()
                                     .Instance;
 
@@ -286,6 +298,56 @@ namespace Oxygenize.Test
             Assert.IsTrue(instance.Ulong != default(ulong));
             Assert.IsTrue(instance.Ushort != default(ushort));
             Assert.IsTrue(instance.GetType() == typeof(PrimitiveTypes));
+        }
+
+        [Test]
+        public void Should_Create_An_Instance_With_Properties_Masks()
+        {
+            var instance = Oxygenize.For<StringsClass>()
+                                    .WithStrategy(GenerationStrategy.Mixed)
+                                    .Configure()
+                                        .Prop(x => x.String)
+                                            .Mask("000")
+                                            .Set()
+                                        .Compile()
+                                    .Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.String.Length == 3);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Cannot set mask for the type other than string.")]
+        public void Should_Throw_An_Exception_When_Trying_To_Set_Mask_For_Other_Type_Than_String()
+        {
+            var instance = Oxygenize.For<PrimitiveTypes>()
+                                    .WithStrategy(GenerationStrategy.Mixed)
+                                    .Configure()
+                                        .Prop(x => x.Int)
+                                            .Mask("000")
+                                            .Set()
+                                        .Compile()
+                                    .Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.Int.ToString().Length == 3);
+        }
+
+        [Test]
+        public void Should_Create_An_Instance_With_Properties_Masks_And_Custom_Placeholder()
+        {
+            var instance = Oxygenize.For<StringsClass>()
+                                    .WithStrategy(GenerationStrategy.Mixed)
+                                    .Configure()
+                                        .Prop(x => x.String)
+                                            .Mask("???-???", '?')
+                                            .Set()
+                                        .Compile()
+                                    .Instance;
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.String.Length == 7);
+            Assert.IsTrue(instance.String.Contains("-"));
         }
     }
 }

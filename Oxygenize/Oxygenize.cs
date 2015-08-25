@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Linq.Expressions;
 using Oxygenize.Generators;
 
@@ -63,7 +64,7 @@ namespace Oxygenize
 
         private T PopulateData()
         {
-            var configuration = new Configuration(_arrayUpperBound, _nullableReferenceTypes, _maxStringLength, _minStringLength, _constructorParameters, _configurator.PropertyConfiguration);
+            var configuration = new Configuration(_arrayUpperBound, _nullableReferenceTypes, _maxStringLength, _minStringLength, _constructorParameters, _configurator.PropertyConfigurations);
 
             T instance;
             switch (_strategy)
@@ -157,7 +158,7 @@ namespace Oxygenize
     public class PropertyConfigurator<T> where T : new()
     {
         private readonly Oxygenize<T> _oxygenize;
-        internal readonly ConcurrentDictionary<string, object> PropertyConfiguration = new ConcurrentDictionary<string, object>(); 
+        internal readonly ConcurrentDictionary<string, PropertyConfiguration> PropertyConfigurations = new ConcurrentDictionary<string, PropertyConfiguration>(); 
 
         internal PropertyConfigurator(Oxygenize<T> oxygenize)
         {
@@ -165,9 +166,9 @@ namespace Oxygenize
         }
 
         /// <summary>
-        /// Sets a given property value
+        /// Sets the specific property configurator
         /// </summary>
-        public PropertyConfigurator<T> Set<TProp>(Expression<Func<T, TProp>> expression, TProp value)
+        public SpecificPropertyConfigurator<T, TProp> Prop<TProp>(Expression<Func<T, TProp>> expression)
         {
             MemberExpression me;
             switch (expression.Body.NodeType)
@@ -180,10 +181,10 @@ namespace Oxygenize
                 default:
                     me = expression.Body as MemberExpression;
                     break;
+
             }
 
-            PropertyConfiguration.AddOrUpdate(me.Member.Name, value, (info, val) => val);
-            return this;
+            return new SpecificPropertyConfigurator<T, TProp>(this, me);
         }
 
         /// <summary>
@@ -192,6 +193,71 @@ namespace Oxygenize
         public Oxygenize<T> Compile()
         {
             return _oxygenize;;
+        } 
+    }
+
+    internal class PropertyConfiguration
+    {
+        public readonly object Value;
+
+        public readonly string Mask;
+
+        public readonly char Placeholder;
+
+        public PropertyConfiguration(object value, string mask, char placeholder)
+        {
+            Value = value;
+            Mask = mask;
+            Placeholder = placeholder;
+        }
+    }
+
+    public class SpecificPropertyConfigurator<T, TProp> where T : new()
+    {
+        private readonly PropertyConfigurator<T> _propertyConfigurator;
+        private readonly MemberExpression _expression;
+
+        private object _value;
+        private string _mask;
+        private char _placeholder;
+
+        internal SpecificPropertyConfigurator(PropertyConfigurator<T> propertyConfigurator, MemberExpression expression)
+        {
+            _propertyConfigurator = propertyConfigurator;
+            _expression = expression;
+        }
+
+        /// <summary>
+        /// Sets a property value
+        /// </summary>
+        public SpecificPropertyConfigurator<T, TProp> WithValue(TProp value)
+        {
+            _value = value;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets a property mask. Note it can be used only with `string` property.
+        /// </summary>
+        public SpecificPropertyConfigurator<T, TProp> Mask(string mask, char placeholder = '\0')
+        {
+            if (typeof (TProp) != typeof(string))
+            {
+                throw new InvalidOperationException("Cannot set mask for the type other than string.");
+            }
+
+            _mask = mask;
+            _placeholder = placeholder;
+            return this;
+        }
+
+        /// <summary>
+        /// Saves the property configuration and allows for further method chain
+        /// </summary>
+        public PropertyConfigurator<T> Set()
+        {
+            _propertyConfigurator.PropertyConfigurations.AddOrUpdate(_expression.Member.Name, s => new PropertyConfiguration(_value, _mask, _placeholder), (info, val) => val);
+            return _propertyConfigurator;
         } 
     }
 
