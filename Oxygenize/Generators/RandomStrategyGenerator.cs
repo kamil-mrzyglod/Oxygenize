@@ -12,8 +12,13 @@ namespace Oxygenize.Generators
         private readonly string _mask;
         private readonly char _placeholder;
 
+        internal RandomStrategyGenerator()
+            : base(new Configuration(1000, false, 100, 0, null, null))
+        {
+        }
+
         internal RandomStrategyGenerator(string mask, char placeholder)
-            : base(new Configuration(1000, false, 0, 0, null, null))
+            : base(new Configuration(1000, false, 100, 0, null, null))
         {
             _mask = mask;
             _placeholder = placeholder;
@@ -37,6 +42,11 @@ namespace Oxygenize.Generators
                 var value = GetRandomValue(property.PropertyType);
                 property.SetValue(Instance, value);
             }
+        }
+
+        internal static object GetRandomPropertyValue(Type propertyType)
+        {
+            return new RandomStrategyGenerator<T>().GetRandomValue(propertyType);
         }
 
         internal static object GetRandomPropertyValue(Type propertyType, string mask, char placeholder)

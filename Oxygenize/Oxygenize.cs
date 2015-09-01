@@ -31,7 +31,7 @@ namespace Oxygenize
             Func<object> valueToObtain;
             if (!SupportedTypes.TryGetValue(typeName, out valueToObtain))
             {
-                throw new ArgumentException("Cannot obtain a value of unregistered type.", "typeName");
+                throw new ArgumentException(string.Format("Cannot obtain a value of unregistered {0} type.", typeName), "typeName");
             }
 
             return valueToObtain.Invoke();

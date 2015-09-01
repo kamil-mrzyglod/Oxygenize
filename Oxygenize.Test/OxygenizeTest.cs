@@ -349,5 +349,20 @@ namespace Oxygenize.Test
             Assert.IsTrue(instance.String.Length == 7);
             Assert.IsTrue(instance.String.Contains("-"));
         }
+
+        [Test]
+        public void Should_Create_An_Instance_Of_Poco()
+        {
+            var instance = Oxygenize.For<EfPocoTest>()
+                                    .WithStrategy(GenerationStrategy.Mixed)
+                                        .Configure()
+                                            .Prop(x => x.Companies)
+                                                .WithValue(Enumerable.Empty<Company>().ToList())
+                                                .Set()
+                                            .Compile()
+                                    .Instance;
+
+            Assert.IsNotNull(instance);
+        }
     }
 }
