@@ -230,18 +230,26 @@
         }
 
         [Test]
-        [Ignore("Need adding support for random generation of custom types")]
         public void Should_Generate_An_Instance_With_Reference_Types()
         {
-            Oxygenize.Configure<InstanceTypes>(configurator =>
+            Oxygenize.Configure<PrimitiveTypes>(configurator =>
             {
                 configurator.WithStrategy(GenerationStrategy.Random);
             });
 
-            var instance = Oxygenize.For<InstanceTypes>();
+            Oxygenize.Configure<Collections>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+            });
 
-            /*Oxygenize.AddSupport(typeof(PrimitiveTypes).ToString(), () => Oxygenize.For<PrimitiveTypes>().Instance);
-            Oxygenize.AddSupport(typeof(Collections).ToString(), () => Oxygenize.For<Collections>().Instance);*/
+            Oxygenize.Configure<InstanceTypes>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+                configurator.Concrete<PrimitiveTypes>();
+                configurator.Concrete<Collections>();
+            });
+
+            var instance = Oxygenize.For<InstanceTypes>();
 
             Assert.IsNotNull(instance);
             Assert.IsNotNull(instance.PrimitiveTypes);

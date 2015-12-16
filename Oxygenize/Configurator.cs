@@ -64,13 +64,22 @@
         }
 
         /// <summary>
-        /// Defines what function should be used to obtain
+        /// Defines what factory function should be used to obtain
         /// a value for a type, which cannot be generated
         /// using in-built methods
         /// </summary>
         public void Concrete<TType>(Func<object> value)
         {
             Configuration.Concretes.Add(typeof(TType).ToString(), value);
+        }
+
+        /// <summary>
+        /// Defines an implicitly assumed factory function,
+        /// which can be used to get type's instance
+        /// </summary>
+        public void Concrete<TType>() where TType : new()
+        {
+            Configuration.Concretes.Add(typeof(TType).ToString(), () => Oxygenize.For<TType>());
         }
     }
 }
