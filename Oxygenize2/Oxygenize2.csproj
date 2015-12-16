@@ -34,6 +34,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configurator.cs" />
     <Compile Include="Generators\CustomStrategyGenerator.cs" />
     <Compile Include="Generators\GeneratorBase.cs" />
     <Compile Include="Generators\MixedStrategyGenerator.cs" />

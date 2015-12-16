@@ -39,7 +39,11 @@ namespace Oxygenize2.Generators
         {
             foreach (var property in Type.GetProperties())
             {
-                var value = GetRandomValue(property.PropertyType);
+                Func<object> valueGetter;
+                var value = Configuration.Concretes.TryGetValue(property.PropertyType.ToString(), out valueGetter) ? 
+                                   valueGetter.Invoke() : 
+                                   GetRandomValue(property.PropertyType);
+                
                 property.SetValue(Instance, value, null);
             }
         }

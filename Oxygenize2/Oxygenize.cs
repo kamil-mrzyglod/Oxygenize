@@ -4,6 +4,8 @@ using Oxygenize2.Generators;
 
 namespace Oxygenize2
 {
+    using System.Collections.Generic;
+
     public class Oxygenize
     {
         private static readonly ConcurrentDictionary<Type, Delegate> Configurations = new ConcurrentDictionary<Type, Delegate>();
@@ -13,8 +15,7 @@ namespace Oxygenize2
         /// </summary>
         public static void Configure<T>(Action<Configurator<T>> configuration) where T : new()
         {
-            if(Configurations.TryAdd(typeof(T), configuration) == false)
-                throw new ArgumentException();
+            Configurations.AddOrUpdate(typeof(T), configuration, (type, @delegate) => configuration);
         }
         
         /// <summary>
@@ -52,49 +53,11 @@ namespace Oxygenize2
         }   
     }
 
-    public class Configurator<T> where T : new()
-    {
-        internal readonly Configuration Configuration;
-
-        internal Configurator()
-        {
-            Configuration = new Configuration(typeof(T));
-        }
-
-        public void WithStrategy(GenerationStrategy strategy)
-        {
-            Configuration.Strategy = strategy;
-        }
-
-        public void WithMaximumCapacity(int capacity)
-        {
-            Configuration.MaxCapacity = capacity;
-        }
-
-        public void WithNullableReferenceTypes(bool nullableReferenceTypes)
-        {
-            Configuration.NullableReferenceTypes = nullableReferenceTypes;
-        }
-
-        public void WithMaxStringLength(int length)
-        {
-            Configuration.MaximumStringLength = length;
-        }
-
-        public void WithMinStringLength(int length)
-        {
-            Configuration.MinStringLength = length;
-        }
-
-        public void WithCtorParameters(Tuple<Type[], object[]> @params)
-        {
-            Configuration.ConstructorParameters = @params;
-        }
-    }
-
     internal class Configuration
     {
         private readonly Type _type;
+
+        internal readonly IDictionary<string, Func<object>> Concretes = new Dictionary<string, Func<object>>();
 
         public GenerationStrategy Strategy;
         public int MaxCapacity;

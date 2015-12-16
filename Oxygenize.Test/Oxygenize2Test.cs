@@ -76,18 +76,19 @@ namespace Oxygenize.Test
         }
 
         [Test]
-        public void Should_Generate_An_Instance_For_Custom_Types_With_Random_Value()
+        public void Should_Generate_An_Instance_For_Custom_Types_With_Concrete_Value()
         {
             Oxygenize2.Oxygenize.Configure<CustomTypes>(configurator =>
             {
                 configurator.WithStrategy(Oxygenize2.GenerationStrategy.Random);
+                configurator.Concrete<CustomStruct>(() => new CustomStruct { Id = 1 });
             });
 
             var instance = Oxygenize2.Oxygenize.For<CustomTypes>();
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.GetType() == typeof(CustomTypes));
-            Assert.IsTrue(instance.CustomStruct.Id != default(int));
+            Assert.IsTrue(instance.CustomStruct.Id == 1);
         }
 
         private class CustomTypes
