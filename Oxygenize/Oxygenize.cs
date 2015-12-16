@@ -40,7 +40,11 @@
             switch (configuration.Strategy)
             {
                 case GenerationStrategy.Mixed:
+                    instance = new MixedStrategyGenerator<T>(configuration).GetData();
+                    break;
                 case GenerationStrategy.Custom:
+                    instance = new CustomStrategyGenerator<T>(configuration).GetData();
+                    break;
                 case GenerationStrategy.Random:
                     instance = new RandomStrategyGenerator<T>(configuration).GetData();
                     break;

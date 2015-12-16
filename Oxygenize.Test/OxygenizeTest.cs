@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
 
     using NUnit.Framework;
 
@@ -304,6 +305,16 @@
         /*[Test]
         public void Should_Create_An_Instance_With_Custom_Strategy()
         {
+            Oxygenize.Configure<PrimitiveTypes>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Custom);
+                configurator.WithValues(
+                    x =>
+                        {
+                            () => x.
+                        });
+            });
+
             var instance = Oxygenize.For<PrimitiveTypes>()
                                     .WithStrategy(GenerationStrategy.Custom)
                                     .Configure()
@@ -321,7 +332,7 @@
             Assert.IsTrue(instance.Int == 123);
         }
 
-        [Test]
+        /*[Test]
         [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "You cannot configure an instance for RandomGenerationStrategy.")]
         public void Should_Throw_An_Exception_When_Trying_To_Configure_Properties_Using_Random_Strategy()
         {
