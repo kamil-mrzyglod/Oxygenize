@@ -3,18 +3,18 @@ using System.Reflection;
 
 namespace Oxygenize2.Generators
 {
-    abstract class GeneratorBase<T> where T : new()
+    internal abstract class GeneratorBase<T> where T : new()
     {
         protected const string Chars = "$%#@!*abcdefghijklmnopqrstuvwxyz1234567890?;:ABCDEFGHIJKLMNOPQRSTUVWXYZ^&";
 
-        protected Oxygenize.Configuration Configuration;
+        protected Configuration Configuration;
 
         protected Type Type;
         protected T Instance;
 
         protected GeneratorBase() { }
 
-        protected GeneratorBase(Oxygenize.Configuration configuration)
+        protected GeneratorBase(Configuration configuration)
         {
             Configuration = configuration;
         }

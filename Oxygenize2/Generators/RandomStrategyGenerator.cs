@@ -7,24 +7,24 @@ using Oxygenize;
 
 namespace Oxygenize2.Generators
 {
-    class RandomStrategyGenerator<T> : GeneratorBase<T> where T : new()
+    internal class RandomStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
         private readonly string _mask;
         private readonly char _placeholder;
 
         internal RandomStrategyGenerator()
-            : base(new Oxygenize.Configuration(typeof(T)))
+            : base(new Configuration(typeof(T)))
         {
         }
 
         internal RandomStrategyGenerator(string mask, char placeholder)
-            : base(new Oxygenize.Configuration(typeof(T)))
+            : base(new Configuration(typeof(T)))
         {
             _mask = mask;
             _placeholder = placeholder;
         } 
 
-        public RandomStrategyGenerator(Oxygenize2.Oxygenize.Configuration configuration)
+        public RandomStrategyGenerator(Configuration configuration)
             : base(configuration)
         {
         }

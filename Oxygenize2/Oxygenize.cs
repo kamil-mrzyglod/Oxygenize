@@ -8,12 +8,18 @@ namespace Oxygenize2
     {
         private static readonly ConcurrentDictionary<Type, Delegate> Configurations = new ConcurrentDictionary<Type, Delegate>();
 
+        /// <summary>
+        /// Pass configuration which should be used when populating data
+        /// </summary>
         public static void Configure<T>(Action<Configurator<T>> configuration) where T : new()
         {
             if(Configurations.TryAdd(typeof(T), configuration) == false)
                 throw new ArgumentException();
         }
-
+        
+        /// <summary>
+        /// Get an instance with populated data
+        /// </summary>
         public static T For<T>() where T : new()
         {
             Delegate configuration;
@@ -43,63 +49,63 @@ namespace Oxygenize2
             }
 
             return instance;
+        }   
+    }
+
+    public class Configurator<T> where T : new()
+    {
+        internal readonly Configuration Configuration;
+
+        internal Configurator()
+        {
+            Configuration = new Configuration(typeof(T));
         }
 
-        public class Configurator<T> where T : new()
+        public void WithStrategy(GenerationStrategy strategy)
         {
-            internal readonly Configuration Configuration;
-
-            internal Configurator()
-            {
-                Configuration = new Configuration(typeof(T));
-            }
-
-            public void WithStrategy(GenerationStrategy strategy)
-            {
-                Configuration.Strategy = strategy;
-            }
-
-            public void WithMaximumCapacity(int capacity)
-            {
-                Configuration.MaxCapacity = capacity;
-            }
-
-            public void WithNullableReferenceTypes(bool nullableReferenceTypes)
-            {
-                Configuration.NullableReferenceTypes = nullableReferenceTypes;
-            }
-
-            public void WithMaxStringLength(int length)
-            {
-                Configuration.MaximumStringLength = length;
-            }
-
-            public void WithMinStringLength(int length)
-            {
-                Configuration.MinStringLength = length;
-            }
-
-            public void WithCtorParameters(Tuple<Type[], object[]> @params)
-            {
-                Configuration.ConstructorParameters = @params;
-            }
+            Configuration.Strategy = strategy;
         }
 
-        internal class Configuration
+        public void WithMaximumCapacity(int capacity)
         {
-            private readonly Type _type;
+            Configuration.MaxCapacity = capacity;
+        }
 
-            public GenerationStrategy Strategy;
-            public int MaxCapacity;
-            public bool NullableReferenceTypes;
-            public int MaximumStringLength;
-            public int MinStringLength;
-            public Tuple<Type[], object[]> ConstructorParameters;
+        public void WithNullableReferenceTypes(bool nullableReferenceTypes)
+        {
+            Configuration.NullableReferenceTypes = nullableReferenceTypes;
+        }
 
-            internal Configuration(Type type)
-            {
-                _type = type;
-            }
+        public void WithMaxStringLength(int length)
+        {
+            Configuration.MaximumStringLength = length;
+        }
+
+        public void WithMinStringLength(int length)
+        {
+            Configuration.MinStringLength = length;
+        }
+
+        public void WithCtorParameters(Tuple<Type[], object[]> @params)
+        {
+            Configuration.ConstructorParameters = @params;
+        }
+    }
+
+    internal class Configuration
+    {
+        private readonly Type _type;
+
+        public GenerationStrategy Strategy;
+        public int MaxCapacity;
+        public bool NullableReferenceTypes;
+        public int MaximumStringLength;
+        public int MinStringLength;
+        public Tuple<Type[], object[]> ConstructorParameters;
+
+        internal Configuration(Type type)
+        {
+            _type = type;
         }
     }
 

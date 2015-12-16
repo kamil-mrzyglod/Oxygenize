@@ -2,7 +2,7 @@
 {
     class MixedStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
-        public MixedStrategyGenerator(Oxygenize2.Oxygenize.Configuration configuration) : base(configuration)
+        public MixedStrategyGenerator(Configuration configuration) : base(configuration)
         {
         }
 
