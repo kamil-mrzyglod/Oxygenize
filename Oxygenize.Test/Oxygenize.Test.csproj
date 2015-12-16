@@ -70,6 +70,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="Oxygenize2Test.cs" />
     <Compile Include="TestClasses\ConstructorsTest.cs" />
     <Compile Include="TestClasses\EfPocoTest.cs" />
     <Compile Include="TestClasses\StringsClass.cs" />
@@ -88,6 +89,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Oxygenize2\Oxygenize2.csproj">
+      <Project>{4edf4eea-cc6f-4d91-a2bf-c5315abf240c}</Project>
+      <Name>Oxygenize2</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Oxygenize\Oxygenize.csproj">
       <Project>{ea22fd0c-ebda-483a-9021-1d3d7a6eb493}</Project>
       <Name>Oxygenize</Name>

@@ -13,3 +13,5 @@ NuGet.Packager/obj/
 *.nupkg
 *.log
 NuGet.Packager/
+Oxygenize2/obj/
+Oxygenize2/bin/
