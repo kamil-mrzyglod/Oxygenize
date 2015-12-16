@@ -70,7 +70,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="Oxygenize2Test.cs" />
+    <Compile Include="OxygenizeTest.cs" />
     <Compile Include="TestClasses\ConstructorsTest.cs" />
     <Compile Include="TestClasses\EfPocoTest.cs" />
     <Compile Include="TestClasses\StringsClass.cs" />
@@ -79,7 +79,6 @@
     <Compile Include="TestClasses\CustomTypes.cs" />
     <Compile Include="TestClasses\DecimalTestClass.cs" />
     <Compile Include="TestClasses\NullablePrimitiveTypes.cs" />
-    <Compile Include="OxygenizeTest.cs" />
     <Compile Include="TestClasses\PrimitiveTypesArrays.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestClasses\PrimitiveTypes.cs" />
@@ -89,12 +88,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Oxygenize2\Oxygenize2.csproj">
-      <Project>{4edf4eea-cc6f-4d91-a2bf-c5315abf240c}</Project>
-      <Name>Oxygenize2</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Oxygenize\Oxygenize.csproj">
-      <Project>{ea22fd0c-ebda-483a-9021-1d3d7a6eb493}</Project>
+      <Project>{4edf4eea-cc6f-4d91-a2bf-c5315abf240c}</Project>
       <Name>Oxygenize</Name>
     </ProjectReference>
   </ItemGroup>

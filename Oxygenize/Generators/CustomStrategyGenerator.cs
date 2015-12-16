@@ -1,6 +1,6 @@
 ﻿namespace Oxygenize.Generators
 {
-    class CustomStrategyGenerator<T> : GeneratorBase<T> where T : new()
+    internal class CustomStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
         public CustomStrategyGenerator(Configuration configuration) : base(configuration)
         {

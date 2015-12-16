@@ -1,24 +1,23 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Oxygenize.Generators
+﻿namespace Oxygenize.Generators
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Text;
 
-    class RandomStrategyGenerator<T> : GeneratorBase<T> where T : new()
+    internal class RandomStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
         private readonly string _mask;
         private readonly char _placeholder;
 
         internal RandomStrategyGenerator()
-            : base(new Configuration(1000, false, 100, 0, null, null))
+            : base(new Configuration(typeof(T)))
         {
         }
 
         internal RandomStrategyGenerator(string mask, char placeholder)
-            : base(new Configuration(1000, false, 100, 0, null, null))
+            : base(new Configuration(typeof(T)))
         {
             _mask = mask;
             _placeholder = placeholder;
@@ -39,8 +38,12 @@ namespace Oxygenize.Generators
         {
             foreach (var property in Type.GetProperties())
             {
-                var value = GetRandomValue(property.PropertyType);
-                property.SetValue(Instance, value);
+                Func<object> valueGetter;
+                var value = Configuration.Concretes.TryGetValue(property.PropertyType.ToString(), out valueGetter) ? 
+                                   valueGetter.Invoke() : 
+                                   GetRandomValue(property.PropertyType);
+                
+                property.SetValue(Instance, value, null);
             }
         }
 
@@ -128,7 +131,7 @@ namespace Oxygenize.Generators
                     return new string(Enumerable.Repeat(Chars, randomizer.Next(Configuration.MinStringLength, Configuration.MaximumStringLength)).Select(s => s[randomizer.Next(s.Length)]).ToArray());
 
                 default:
-                    return Oxygenize.ObtainValue(propertyType.ToString());
+                    return null;
             }
         }
 
@@ -158,7 +161,7 @@ namespace Oxygenize.Generators
                 var dictionaryType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
                 var dictionaryInstance = Activator.CreateInstance(dictionaryType);
                 var addMethod = dictionaryType.GetMethod("Add");
-                for (var i = 0; i <= randomizer.Next(Configuration.ArrayUpperBound); i++)
+                for (var i = 0; i <= randomizer.Next(Configuration.MaxCapacity); i++)
                 {
                     addMethod.Invoke(dictionaryInstance, new[] { GetRandomValue(keyType, true), GetRandomValue(valueType) });
                 }
@@ -171,7 +174,7 @@ namespace Oxygenize.Generators
 
         private IEnumerable GetRandomEnumerable(Type genericType, Random randomizer)
         {
-            var enumerable = Enumerable.Range(0, randomizer.Next(Configuration.ArrayUpperBound)).Select(x => GetRandomValue(genericType));
+            var enumerable = Enumerable.Range(0, randomizer.Next(Configuration.MaxCapacity)).Select(x => GetRandomValue(genericType));
             var methodInfo = typeof (Enumerable).GetMethod("Cast")
                 .MakeGenericMethod(genericType)
                 .Invoke(null, new object[] {enumerable}) as IEnumerable;
@@ -190,7 +193,7 @@ namespace Oxygenize.Generators
             var elementType = propertyType.GetElementType();
             var randomizer = new Randomizer().Instance;
 
-            var array = Array.CreateInstance(elementType, randomizer.Next(1, Configuration.ArrayUpperBound));
+            var array = Array.CreateInstance(elementType, randomizer.Next(1, Configuration.MaxCapacity));
             var value = Enumerable.Range(0, array.Length).Select(x => GetRandomValue(elementType)).ToArray();
             Array.Copy(value, array, value.Length);
 
@@ -308,7 +311,7 @@ namespace Oxygenize.Generators
                     value = new decimal(randomizer.NextInt32(), randomizer.NextInt32(), randomizer.NextInt32(), sign, scale);
                     break;
                 default:
-                    value = Oxygenize.ObtainValue(type.ToString());
+                    value = null;
                     break;
             }
 

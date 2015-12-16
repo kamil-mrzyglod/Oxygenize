@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Oxygenize")]
+[assembly: AssemblyTitle("Oxygenize2")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("Oxygenize")]
+[assembly: AssemblyProduct("Oxygenize2")]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("78a5cd71-2e0f-47a3-b553-d7109704dfe5")]
+[assembly: Guid("4edf4eea-cc6f-4d91-a2bf-c5315abf240c")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,6 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.7.0")]
-[assembly: AssemblyFileVersion("1.0.7.0")]
-[assembly: InternalsVisibleTo("Oxygenize.Test")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]

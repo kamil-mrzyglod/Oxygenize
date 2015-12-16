@@ -1,6 +1,6 @@
 ﻿namespace Oxygenize.Generators
 {
-    class MixedStrategyGenerator<T> : GeneratorBase<T> where T : new()
+    internal class MixedStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
         public MixedStrategyGenerator(Configuration configuration) : base(configuration)
         {

@@ -1,4 +1,4 @@
-﻿namespace Oxygenize2
+﻿namespace Oxygenize
 {
     using System;
 
@@ -57,7 +57,7 @@
         /// Allows to pass concrete ctor params, what enables
         /// using specific ctor when creating an instance of type
         /// </summary>
-        /// <param name="@params"></param>
+        /// <param name="params"></param>
         public void WithCtorParameters(Tuple<Type[], object[]> @params)
         {
             Configuration.ConstructorParameters = @params;

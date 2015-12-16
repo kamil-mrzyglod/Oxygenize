@@ -3,16 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygenize", "Oxygenize\Oxygenize.csproj", "{EA22FD0C-EBDA-483A-9021-1D3D7A6EB493}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygenize.Test", "Oxygenize.Test\Oxygenize.Test.csproj", "{BE144422-AC05-4371-8677-9CF296FF59A3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2B32BB6B-CCAE-4330-BAC3-54FF5E696E66}"
-	ProjectSection(SolutionItems) = preProject
-		README.md = README.md
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygenize2", "Oxygenize2\Oxygenize2.csproj", "{4EDF4EEA-CC6F-4D91-A2BF-C5315ABF240C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygenize", "Oxygenize\Oxygenize.csproj", "{4EDF4EEA-CC6F-4D91-A2BF-C5315ABF240C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,10 +13,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{EA22FD0C-EBDA-483A-9021-1D3D7A6EB493}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EA22FD0C-EBDA-483A-9021-1D3D7A6EB493}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EA22FD0C-EBDA-483A-9021-1D3D7A6EB493}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EA22FD0C-EBDA-483A-9021-1D3D7A6EB493}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BE144422-AC05-4371-8677-9CF296FF59A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BE144422-AC05-4371-8677-9CF296FF59A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE144422-AC05-4371-8677-9CF296FF59A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
