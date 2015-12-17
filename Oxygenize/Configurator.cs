@@ -1,6 +1,7 @@
 ﻿namespace Oxygenize
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq.Expressions;
 
     public class Configurator<T> where T : new()
@@ -59,9 +60,9 @@
         /// using specific ctor when creating an instance of type
         /// </summary>
         /// <param name="params"></param>
-        public void WithCtorParameters(Tuple<Type[], object[]> @params)
+        public void WithCtorParameters(Type[] types, object[] objects)
         {
-            Configuration.ConstructorParameters = @params;
+            Configuration.ConstructorParameters = new Tuple<Type[], object[]>(types, objects);
         }
 
         /// <summary>
@@ -104,6 +105,27 @@
         public void WithValues(Func<T, T> func)
         {
             Configuration.ValueGetter = func;
+        }
+    }
+
+    internal class Configuration
+    {
+        private readonly Type _type;
+
+        internal readonly IDictionary<string, Func<object>> Concretes = new Dictionary<string, Func<object>>();
+
+        public GenerationStrategy Strategy;
+        public int MaxCapacity = 1000;
+        public bool NullableReferenceTypes;
+        public int MaximumStringLength = 1000;
+        public int MinStringLength;
+        public Tuple<Type[], object[]> ConstructorParameters;
+        public Expression Value;
+        public Delegate ValueGetter;
+
+        internal Configuration(Type type)
+        {
+            _type = type;
         }
     }
 }

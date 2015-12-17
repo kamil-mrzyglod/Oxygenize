@@ -292,7 +292,7 @@
             Oxygenize.Configure<ConstructorsTest>(configurator =>
             {
                 configurator.WithStrategy(GenerationStrategy.Random);
-                configurator.WithCtorParameters(new Tuple<Type[], object[]>(new[] { typeof(int), typeof(string) }, new object[] { 2, "TESTTEST" }));
+                configurator.WithCtorParameters(new[] { typeof(int), typeof(string) }, new object[] { 2, "TESTTEST" });
             });
 
             var instance = Oxygenize.For<ConstructorsTest>();

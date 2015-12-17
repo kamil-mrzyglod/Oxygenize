@@ -30,7 +30,12 @@
 
         protected override T Generate()
         {
-            this.SetProperties();
+            SetProperties();
+            if (Configuration.ValueGetter != null)
+            {
+                ((Func<T, T>)Configuration.ValueGetter).Invoke(Instance);
+            }
+
             return Instance;
         }
 

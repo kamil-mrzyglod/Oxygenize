@@ -2,10 +2,8 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
 
     using Generators;
-    using System.Linq.Expressions;
 
     public class Oxygenize
     {
@@ -56,27 +54,6 @@
 
             return instance;
         }   
-    }
-
-    internal class Configuration
-    {
-        private readonly Type _type;
-
-        internal readonly IDictionary<string, Func<object>> Concretes = new Dictionary<string, Func<object>>();
-
-        public GenerationStrategy Strategy;
-        public int MaxCapacity = 1000;
-        public bool NullableReferenceTypes;
-        public int MaximumStringLength = 1000;
-        public int MinStringLength;
-        public Tuple<Type[], object[]> ConstructorParameters;
-        public Expression Value;
-        public Delegate ValueGetter; 
-
-        internal Configuration(Type type)
-        {
-            _type = type;
-        }
     }
 
     public enum GenerationStrategy
