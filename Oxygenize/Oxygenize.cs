@@ -5,6 +5,7 @@
     using System.Collections.Generic;
 
     using Generators;
+    using System.Linq.Expressions;
 
     public class Oxygenize
     {
@@ -69,6 +70,8 @@
         public int MaximumStringLength = 1000;
         public int MinStringLength;
         public Tuple<Type[], object[]> ConstructorParameters;
+        public Expression Value;
+        public Delegate ValueGetter; 
 
         internal Configuration(Type type)
         {

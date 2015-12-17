@@ -1,6 +1,7 @@
 ﻿namespace Oxygenize
 {
     using System;
+    using System.Linq.Expressions;
 
     public class Configurator<T> where T : new()
     {
@@ -80,6 +81,29 @@
         public void Concrete<TType>() where TType : new()
         {
             Configuration.Concretes.Add(typeof(TType).ToString(), () => Oxygenize.For<TType>());
+        }
+
+        /// <summary>
+        /// Enables to manually declare returned value
+        /// </summary>
+        public void WithValue(Expression<Func<T>> expression)
+        {
+            if (Configuration.Strategy == GenerationStrategy.Custom)
+            {
+                Configuration.Value = expression;
+                return;
+            }
+                
+            throw new InvalidOperationException("You can declare value only for CustomGenerationStrategy.");
+        }
+
+        /// <summary>
+        /// Declares specific values which should be used
+        /// instead of generated ones
+        /// </summary>
+        public void WithValues(Func<T, T> func)
+        {
+            Configuration.ValueGetter = func;
         }
     }
 }

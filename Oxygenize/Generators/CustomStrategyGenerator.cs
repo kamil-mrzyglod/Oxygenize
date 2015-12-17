@@ -1,4 +1,7 @@
-﻿namespace Oxygenize.Generators
+﻿using System;
+using System.Linq.Expressions;
+
+namespace Oxygenize.Generators
 {
     internal class CustomStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
@@ -8,6 +11,13 @@
 
         protected override T Generate()
         {
+            // This strategy supports populating data manually
+            if(Configuration.Value != null)
+            {
+                var value = ((Expression<Func<T>>)Configuration.Value).Compile().Invoke();
+                return value;
+            }
+
             SetProperties();
             return Instance;
         }

@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
 
     using NUnit.Framework;
 
@@ -302,66 +301,59 @@
             Assert.IsTrue(instance.String == "TESTTEST");
         }
 
-        /*[Test]
+        [Test]
         public void Should_Create_An_Instance_With_Custom_Strategy()
         {
             Oxygenize.Configure<PrimitiveTypes>(configurator =>
             {
                 configurator.WithStrategy(GenerationStrategy.Custom);
-                configurator.WithValues(
-                    x =>
-                        {
-                            () => x.
-                        });
+                configurator.WithValue(() => new PrimitiveTypes
+                {
+                    Bool = true,
+                    Int = 123
+                });
             });
 
-            var instance = Oxygenize.For<PrimitiveTypes>()
-                                    .WithStrategy(GenerationStrategy.Custom)
-                                    .Configure()
-                                        .Prop(x => x.Bool)
-                                            .WithValue(true)
-                                            .Set()
-                                        .Prop(x => x.Int)
-                                            .WithValue(123)
-                                            .Set()
-                                        .Compile()
-                                    .Instance;
+            var instance = Oxygenize.For<PrimitiveTypes>();
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.Bool);
             Assert.IsTrue(instance.Int == 123);
         }
 
-        /*[Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "You cannot configure an instance for RandomGenerationStrategy.")]
+        [Test]
+        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "You can declare value only for CustomGenerationStrategy.")]
         public void Should_Throw_An_Exception_When_Trying_To_Configure_Properties_Using_Random_Strategy()
         {
-            var instance = Oxygenize.For<PrimitiveTypes>()
-                                    .Configure()
-                                        .Prop(x => x.Bool)
-                                            .WithValue(true)
-                                            .Set()
-                                        .Prop(x => x.Int)
-                                            .WithValue(123)
-                                            .Set()
-                                        .Compile()
-                                    .Instance;
+            Oxygenize.Configure<PrimitiveTypes>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+                configurator.WithValue(() => new PrimitiveTypes
+                {
+                    Bool = true,
+                    Int = 123
+                });
+            });
+
+            var instance = Oxygenize.For<PrimitiveTypes>();
         }
 
         [Test]
         public void Should_Create_An_Instance_With_Mixed_Strategy()
         {
-            var instance = Oxygenize.For<PrimitiveTypes>()
-                                    .WithStrategy(GenerationStrategy.Mixed)
-                                    .Configure()
-                                        .Prop(x => x.Bool)
-                                            .WithValue(true)
-                                            .Set()
-                                        .Prop(x => x.Int)
-                                            .WithValue(123)
-                                            .Set()
-                                        .Compile()
-                                    .Instance;
+            Oxygenize.Configure<PrimitiveTypes>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Mixed);
+                configurator.WithValues((_) =>
+                {
+                    _.Bool = true;
+                    _.Int = 123;
+
+                    return _;
+                });
+            });
+
+            var instance = Oxygenize.For<PrimitiveTypes>();
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.Bool);
@@ -379,7 +371,7 @@
             Assert.IsTrue(instance.GetType() == typeof(PrimitiveTypes));
         }
 
-        [Test]
+        /*[Test]
         public void Should_Create_An_Instance_With_Properties_Masks()
         {
             var instance = Oxygenize.For<StringsClass>()
@@ -429,19 +421,24 @@
             Assert.IsTrue(instance.String.Contains("-"));
         }
 
+        */
         [Test]
         public void Should_Create_An_Instance_Of_Poco()
         {
-            var instance = Oxygenize.For<EfPocoTest>()
-                                    .WithStrategy(GenerationStrategy.Mixed)
-                                        .Configure()
-                                            .Prop(x => x.Companies)
-                                                .WithValue(Enumerable.Empty<Company>().ToList())
-                                                .Set()
-                                            .Compile()
-                                    .Instance;
+            Oxygenize.Configure<EfPocoTest>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Mixed);
+                configurator.WithValues((_) =>
+                {
+                    _.Companies = Enumerable.Empty<Company>().ToList();
+
+                    return _;
+                });
+            });
+
+            var instance = Oxygenize.For<EfPocoTest>();
 
             Assert.IsNotNull(instance);
-        }*/
+        }
     }
 }

@@ -1,4 +1,7 @@
-﻿namespace Oxygenize.Generators
+﻿using System;
+using System.Linq.Expressions;
+
+namespace Oxygenize.Generators
 {
     internal class MixedStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
@@ -9,6 +12,11 @@
         protected override T Generate()
         {
             SetProperties();
+            if(Configuration.ValueGetter != null)
+            {
+                ((Func<T, T>)Configuration.ValueGetter).Invoke(Instance);
+            }
+
             return Instance;
         }
 
