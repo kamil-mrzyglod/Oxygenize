@@ -42,12 +42,21 @@
             return Generate();
         }
 
-        protected abstract T Generate();
+        protected virtual T Generate()
+        {
+            if (Configuration.ValueGetter != null)
+            {
+                ((Func<T, T>)Configuration.ValueGetter).Invoke(Instance);
+            }
+
+            return Instance;
+        }
+
         protected abstract void SetProperties();
 
         protected void SetProperty(PropertyInfo property)
         {
-            property.SetValue(Instance, RandomStrategyGenerator<T>.GetRandomPropertyValue(property.PropertyType), null);
+            property.SetValue(Instance, RandomStrategyGenerator<T>.GetRandomPropertyValue(property.PropertyType, Configuration), null);
         }
     }
 }

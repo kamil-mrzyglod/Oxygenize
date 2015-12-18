@@ -307,10 +307,12 @@
             Oxygenize.Configure<PrimitiveTypes>(configurator =>
             {
                 configurator.WithStrategy(GenerationStrategy.Custom);
-                configurator.WithValue(() => new PrimitiveTypes
+                configurator.WithValues((_) =>
                 {
-                    Bool = true,
-                    Int = 123
+                    _.Bool = true;
+                    _.Int = 123;
+
+                    return _;
                 });
             });
 
@@ -319,23 +321,7 @@
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.Bool);
             Assert.IsTrue(instance.Int == 123);
-        }
-
-        [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "You can declare value only for CustomGenerationStrategy.")]
-        public void Should_Throw_An_Exception_When_Trying_To_Configure_Properties_Using_Random_Strategy()
-        {
-            Oxygenize.Configure<PrimitiveTypes>(configurator =>
-            {
-                configurator.WithStrategy(GenerationStrategy.Random);
-                configurator.WithValue(() => new PrimitiveTypes
-                {
-                    Bool = true,
-                    Int = 123
-                });
-            });
-
-            var instance = Oxygenize.For<PrimitiveTypes>();
+            Assert.IsTrue(instance.Char == default(char));
         }
 
         [Test]
@@ -371,57 +357,37 @@
             Assert.IsTrue(instance.GetType() == typeof(PrimitiveTypes));
         }
 
-        /*[Test]
+        [Test]
         public void Should_Create_An_Instance_With_Properties_Masks()
         {
-            var instance = Oxygenize.For<StringsClass>()
-                                    .WithStrategy(GenerationStrategy.Mixed)
-                                    .Configure()
-                                        .Prop(x => x.String)
-                                            .Mask("000")
-                                            .Set()
-                                        .Compile()
-                                    .Instance;
+            Oxygenize.Configure<StringsClass>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Mixed);
+                configurator.SetMaskFor(_ => _.String, "???-???", '?');
+            });
+
+            var instance = Oxygenize.For<StringsClass>();
 
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.String.Length == 3);
-        }
-
-        [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Cannot set mask for the type other than string.")]
-        public void Should_Throw_An_Exception_When_Trying_To_Set_Mask_For_Other_Type_Than_String()
-        {
-            var instance = Oxygenize.For<PrimitiveTypes>()
-                                    .WithStrategy(GenerationStrategy.Mixed)
-                                    .Configure()
-                                        .Prop(x => x.Int)
-                                            .Mask("000")
-                                            .Set()
-                                        .Compile()
-                                    .Instance;
-
-            Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.Int.ToString().Length == 3);
+            Assert.IsTrue(instance.String.Length == 7);
         }
 
         [Test]
         public void Should_Create_An_Instance_With_Properties_Masks_And_Custom_Placeholder()
         {
-            var instance = Oxygenize.For<StringsClass>()
-                                    .WithStrategy(GenerationStrategy.Mixed)
-                                    .Configure()
-                                        .Prop(x => x.String)
-                                            .Mask("???-???", '?')
-                                            .Set()
-                                        .Compile()
-                                    .Instance;
+            Oxygenize.Configure<StringsClass>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Mixed);
+                configurator.SetMaskFor(_ => _.String, "***-***-***", '*');
+            });
+
+            var instance = Oxygenize.For<StringsClass>();
 
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.String.Length == 7);
+            Assert.IsTrue(instance.String.Length == 11);
             Assert.IsTrue(instance.String.Contains("-"));
         }
 
-        */
         [Test]
         public void Should_Create_An_Instance_Of_Poco()
         {

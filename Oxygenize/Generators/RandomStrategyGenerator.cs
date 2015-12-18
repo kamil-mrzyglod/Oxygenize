@@ -8,20 +8,10 @@
 
     internal class RandomStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
-        private readonly string _mask;
-        private readonly char _placeholder;
-
         internal RandomStrategyGenerator()
             : base(new Configuration(typeof(T)))
         {
         }
-
-        internal RandomStrategyGenerator(string mask, char placeholder)
-            : base(new Configuration(typeof(T)))
-        {
-            _mask = mask;
-            _placeholder = placeholder;
-        } 
 
         public RandomStrategyGenerator(Configuration configuration)
             : base(configuration)
@@ -31,12 +21,7 @@
         protected override T Generate()
         {
             SetProperties();
-            if (Configuration.ValueGetter != null)
-            {
-                ((Func<T, T>)Configuration.ValueGetter).Invoke(Instance);
-            }
-
-            return Instance;
+            return base.Generate();
         }
 
         protected override void SetProperties()
@@ -52,14 +37,9 @@
             }
         }
 
-        internal static object GetRandomPropertyValue(Type propertyType)
+        internal static object GetRandomPropertyValue(Type propertyType, Configuration configuration)
         {
-            return new RandomStrategyGenerator<T>().GetRandomValue(propertyType);
-        }
-
-        internal static object GetRandomPropertyValue(Type propertyType, string mask, char placeholder)
-        {
-            return new RandomStrategyGenerator<T>(mask, placeholder).GetRandomValue(propertyType);
+            return new RandomStrategyGenerator<T>(configuration).GetRandomValue(propertyType);
         }
 
         private object GetRandomValue(Type propertyType, bool cannotBeNull = false)
@@ -115,12 +95,13 @@
             switch (propertyType.ToString())
             {
                 case "System.String":
-                    if (!string.IsNullOrWhiteSpace(_mask))
+                    string mask;
+                    if (Configuration.Masks.TryGetValue(propertyType.MetadataToken, out mask))
                     {
                         var sb = new StringBuilder();
-                        foreach (var placeholder in _mask)
+                        foreach (var placeholder in mask)
                         {
-                            if (placeholder == _placeholder)
+                            if (placeholder == Configuration.Placeholder)
                             {
                                 sb.Append(GetRandomPrimitiveValue(typeof(char)));
                             }
@@ -130,7 +111,7 @@
                             }
                         }
 
-                        return sb.ToString(0, _mask.Length);
+                        return sb.ToString(0, mask.Length);
                     }
 
                     return new string(Enumerable.Repeat(Chars, randomizer.Next(Configuration.MinStringLength, Configuration.MaximumStringLength)).Select(s => s[randomizer.Next(s.Length)]).ToArray());

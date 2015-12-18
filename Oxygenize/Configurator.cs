@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using System.Reflection;
 
     public class Configurator<T> where T : new()
     {
@@ -62,6 +63,12 @@
         /// <param name="params"></param>
         public void WithCtorParameters(Type[] types, object[] objects)
         {
+            if (types == null)
+                throw new ArgumentNullException("types");
+
+            if (objects == null)
+                throw new ArgumentNullException("objects");
+
             Configuration.ConstructorParameters = new Tuple<Type[], object[]>(types, objects);
         }
 
@@ -72,6 +79,9 @@
         /// </summary>
         public void Concrete<TType>(Func<object> value)
         {
+            if (value == null)
+                throw new ArgumentNullException("value");
+
             Configuration.Concretes.Add(typeof(TType).ToString(), value);
         }
 
@@ -85,26 +95,45 @@
         }
 
         /// <summary>
-        /// Enables to manually declare returned value
-        /// </summary>
-        public void WithValue(Expression<Func<T>> expression)
-        {
-            if (Configuration.Strategy == GenerationStrategy.Custom)
-            {
-                Configuration.Value = expression;
-                return;
-            }
-                
-            throw new InvalidOperationException("You can declare value only for CustomGenerationStrategy.");
-        }
-
-        /// <summary>
         /// Declares specific values which should be used
         /// instead of generated ones
         /// </summary>
         public void WithValues(Func<T, T> func)
         {
+            if (func == null)
+                throw new ArgumentNullException("func");
+
             Configuration.ValueGetter = func;
+        }
+
+        /// <summary>
+        /// Allows to set a mask which will be used when generating
+        /// value for the selected property
+        /// </summary>
+        public void SetMaskFor(Expression<Func<T, string>> expression, string mask, char placeholder)
+        {
+            if (expression == null)
+                throw new ArgumentNullException("expression");
+
+            if (string.IsNullOrWhiteSpace(mask))
+                throw new ArgumentNullException("mask");
+
+            MemberExpression me;
+            switch (expression.Body.NodeType)
+            {
+                case ExpressionType.Convert:
+                case ExpressionType.ConvertChecked:
+                    var ue = expression.Body as UnaryExpression;
+                    me = ((ue != null) ? ue.Operand : null) as MemberExpression;
+                    break;
+                default:
+                    me = expression.Body as MemberExpression;
+                    break;
+
+            }
+
+            Configuration.Placeholder = placeholder;
+            Configuration.Masks.Add(((PropertyInfo)me.Member).PropertyType.MetadataToken, mask);
         }
     }
 
@@ -113,6 +142,7 @@
         private readonly Type _type;
 
         internal readonly IDictionary<string, Func<object>> Concretes = new Dictionary<string, Func<object>>();
+        internal readonly IDictionary<int, string> Masks = new Dictionary<int, string>();
 
         public GenerationStrategy Strategy;
         public int MaxCapacity = 1000;
@@ -120,8 +150,8 @@
         public int MaximumStringLength = 1000;
         public int MinStringLength;
         public Tuple<Type[], object[]> ConstructorParameters;
-        public Expression Value;
         public Delegate ValueGetter;
+        public char Placeholder;
 
         internal Configuration(Type type)
         {
