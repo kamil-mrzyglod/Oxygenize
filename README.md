@@ -59,7 +59,20 @@ Oxygenize.Configure<YourTypeToBegenerated>(configurator =>
 Note that the previous version of ```Oxygenize``` stored all supported types in an internal static dictionary, thus it was possible to reuse them. Now implementation has changed so you have to either configure type in one place or reconfigure it each time it is used.
 
 ## Mask support
-Currently unavailable
+If you want to specify a mask, which should be used when generating data for a property, you can use ```SetMaskFor(Expression<Func<T, string>> expression, string mask, char placeholder)``` method when configuring a type.
+
+Example:
+```
+Oxygenize.Configure<StringsClass>(configurator =>
+{
+    configurator.WithStrategy(GenerationStrategy.Mixed);
+    configurator.SetMaskFor(_ => _.String, "***-***-***", '*');
+});
+
+var instance = Oxygenize.For<StringsClass>();
+```
+
+Note that instead throwing an exception when used with non-string type, it gives you compile time error(it is constrained to ```string``` by its signature).
 
 ## Example usage
 ```
