@@ -1,7 +1,9 @@
 # Oxygenize
-Populating your POCOs with totally randomized(or not at all!) data.
+This is a new 2.0 branch with completely rewritten syntax. The plan is to make it easier to write and read + allow defining how particular properties should vary.
 
-Oxygenize is a small library, that helps you populate data to your POCOs. It supports three strategies of data generation:
+Populating your classes and structures with totally randomized(or not at all!) data.
+
+Oxygenize is a small library, that helps you populate data to your classes and structures. Its main purpose is to generate multiple test cases, so you don't have to bother thinking about them. It supports three strategies of data generation:
 * `GenerationStrategy.Random`
 * `GenerationStrategy.Custom`
 * `GenerationStrategy.Mixed`
@@ -16,17 +18,20 @@ Oxygenize takes type you want to be generated as a parameter and - depending on 
 It returns strongly typed object so no additional casts are required.
 
 ## Basic usage
-The very basic usage takes nothing more than:
-
-```var instance = Oxygenize.For<YourTypeToBegenerated>().Instance;```
-
-You can explicitely select generation strategy using `WithStrategy(GenerationStrategy strategy)` method:
+The very basic usage takes nothing more than configuring your type with selected strategy:
 
 ```
-var instance = Oxygenize.For<YourTypeToBegenerated>()
-                        .WithStrategy(GenerationStrategy.Random)
-                        .Instance;
+Oxygenize.Configure<YourTypeToBegenerated>(configurator =>
+{
+    configurator.WithStrategy(GenerationStrategy.Random);
+});
 ```
+Then you can fetch it using:
+
+```var instance = Oxygenize.For<YourTypeToBegenerated>();```
+
+Note that each time you call ```Oxygenize.For<T>()``` method, you will fetch different instance.
+
 ## Supported types
 Currently Oxygenize supports following types natively:
 * primitives(`int`, `decimal` etc.)
@@ -41,84 +46,51 @@ Currently Oxygenize supports following types natively:
 Note: Generics parameter types are limited to the types natively supported by Oxygenize. If the parameter type is your custom type(or is not supported) you has to explicitely register it as shown below.
 
 ## Custom types support
-By default Oxygenize supports only few structs which can be generated using `GenerationStrategy.Random` e.g. `DateTime` or `Guid`. You can add support for all desired types using `Oxygenize.AddSupport(string typeName, Func<object> valueToObtain)` method:
+By default Oxygenize supports only few structs which can be generated using `GenerationStrategy.Random` e.g. `DateTime` or `Guid`. You can add support for all desired types using `Configurator.Concrete<TType>(Func<object> value)` method:
 
 ```
-Oxygenize.AddSupport("Oxygenize.Test.CustomStruct", () => new CustomStruct
+Oxygenize.Configure<YourTypeToBegenerated>(configurator =>
 {
-    Id = 1
+    configurator.WithStrategy(GenerationStrategy.Random);
+    configurator.Concrete<CustomStruct>(() => new CustomStruct { Id = 1 });
 });
 ```
 
-this method takes two arguments:
-* `string typeName` which is nothing more than string representation of an instance of the given type - implementation of the `ToString()` method
-* `Func<object> valueToObtain` delegate which will be invoked when generating random type instance value
-
-All supported types are stored using internal `ConcurrentDictionary` static field so once registered, they stay there until `AppDomain` is unloaded.
+Note that the previous version of ```Oxygenize``` stored all supported types in an internal static dictionary, thus it was possible to reuse them. Now implementation has changed so you have to either configure type in one place or reconfigure it each time it is used.
 
 ## Mask support
-It is possible to specify a mask which should be used for property value generation. There are two conditions however:
-* you are using `GenerationStrategy.Mixed`
-* the property you are trying to configure is a `string`
+If you want to specify a mask, which should be used when generating data for a property, you can use ```SetMaskFor(Expression<Func<T, string>> expression, string mask, char placeholder)``` method when configuring a type.
 
-The usage is simple:
+Example:
 ```
-var instance = Oxygenize.For<StringsClass>()
-                        .WithStrategy(GenerationStrategy.Mixed)
-                        .Configure()
-                            .Prop(x => x.String)
-                                .Mask("???-???", '?')
-                                .Set()
-                            .Compile()
-                        .Instance;
+Oxygenize.Configure<StringsClass>(configurator =>
+{
+    configurator.WithStrategy(GenerationStrategy.Mixed);
+    configurator.SetMaskFor(_ => _.String, "***-***-***", '*');
+});
+
+var instance = Oxygenize.For<StringsClass>();
 ```
+
+Note that instead throwing an exception when used with non-string type, it gives you compile time error(it is constrained to ```string``` by its signature).
+
 ## Example usage
 ```
-[Test]
-public void Should_Generate_An_Instance_With_Reference_Types()
+Oxygenize.Configure<MyType>(configurator =>
 {
-    Oxygenize.AddSupport(typeof(PrimitiveTypes).ToString(), () => Oxygenize.For<PrimitiveTypes>().Instance);
-    Oxygenize.AddSupport(typeof(Collections).ToString(), () => Oxygenize.For<Collections>().Instance);
+    configurator.WithStrategy(GenerationStrategy.Mixed);
+    configurator.WithMaximumCapacity(100);
+    configurator.WithMaxStringLength(100);
+    configurator.WithMinStringLength(50);
+    configurator.WithNullableReferenceTypes(true);
+    configurator.WithValues((_) =>
+    {
+        _.Name = "NameShouldBeFixed;
+        _.Surname = "SurnameShouldBeFixedAlso";
+        
+        return _;
+    });
+});
 
-    var instance = Oxygenize.For<InstanceTypes>()
-                            .WithStrategy(GenerationStrategy.Random)
-                            .UpperBound(500)
-                            .NullableReferenceTypes(true)
-                            .Instance;
-
-    ...
-}
-
-class InstanceTypes
-{
-    public PrimitiveTypes PrimitiveTypes { get; set; }
-
-    public Collections Collections { get; set; }
-}
+var instance = Oxygenize.For<StringArray>();
 ```
-
-## API reference
-All available API methods are listed below:
-
-### Oxygenize
-* `void AddSupport(string typeName, Func<object> valueToObtain)` - adds support for given custom type. Type name is a Type.ToString() representation.
-* `Oxygenize<T> For<T>` - returns `Oxygenize<T>` object, which can be customized to populate necessary data for given parameter type. Parameter is constrained with `new()`
-
-### Oxygenize\<T\>
-* `PropertyConfigurator<T> Configure()` - returns a PropertyConfigurator, which can be used to configure properties using Custom/MixedGenerationStrategy
-* `T Instance` - returns an instance of constructed type. Used at the end of the methods chain.
-* `Oxygenize<T> MaxStringLength(int maxLength)` - sets maximum length for all generated strings
-* `Oxygenize<T> MinStringLength(int maxLength)` - sets minimum length for all generated strings
-* `Oxygenize<T> NullableReferenceTypes(bool areNullable)` - tells the generator whether reference types can be generated as `null`
-* `Oxygenize<T> UpperBound(int upperBound)` - sets upper bound of array elements count.
-* `Oxygenize<T> WithConstructor(Type[] types, object[] values)` - specifies constructor which should be used for an instance generation
-* `Oxygenize<T> WithStrategy(GenerationStrategy strategy = GenerationStrategy.Random)` - sets a strategy used for an instance generation
-
-### PropertyConfigurator\<T\>
-* `SpecificPropertyConfigurator<T, TProp> Prop<TProp>(Expression<Func<T, TProp>> expression)` - enables to configure specific property
-* `Oxygenize<T> Compile()` - finishes configuration
-
-### SpecificPropertyConfigurator\<T, TProp\>
-* `SpecificPropertyConfigurator<T, TProp> WithValue(TProp value)` - sets a property value
-* `SpecificPropertyConfigurator<T, TProp> Mask(string mask, char placeholder = '\0')` - sets a property mask. Note it can be used only with `string` property.
-* `PropertyConfigurator<T> Set()` - saves the property configuration and allows for further method chain

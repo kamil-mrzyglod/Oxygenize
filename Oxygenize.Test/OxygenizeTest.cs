@@ -1,20 +1,24 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using Oxygenize.Test.TestClasses;
-
-namespace Oxygenize.Test
+﻿namespace Oxygenize.Test
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using NUnit.Framework;
+
+    using TestClasses;
 
     public class OxygenizeTest
     {
-        public const string CustomValueTypeName = "System.SupportedStruct";
-
         [Test]
-        public void Should_Create_Instance_Of_Given_Type()
+        public void GivenPrimitiveType_ShouldGenerateIt()
         {
-            var instance = Oxygenize.For<PrimitiveTypes>().Instance;
+            Oxygenize.Configure<PrimitiveTypes>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+            });
+
+            var instance = Oxygenize.For<PrimitiveTypes>();
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.Byte != default(byte));
@@ -34,7 +38,12 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Create_Instance_Of_Given_Nullable_Type()
         {
-            var instance = Oxygenize.For<NullablePrimitiveTypes>().Instance;
+            Oxygenize.Configure<NullablePrimitiveTypes>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+            });
+
+            var instance = Oxygenize.For<NullablePrimitiveTypes>();
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.GetType() == typeof(NullablePrimitiveTypes));
@@ -43,7 +52,12 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Create_Instance_Of_Given_Value_Type()
         {
-            var instance = Oxygenize.For<ValueTypes>().Instance;
+            Oxygenize.Configure<ValueTypes>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+            });
+
+            var instance = Oxygenize.For<ValueTypes>();
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.DateTime != default(DateTime));
@@ -53,42 +67,55 @@ namespace Oxygenize.Test
         }
 
         [Test]
-        public void Should_Obtain_A_Valid_Value_From_Supported_Types()
-        {
-            Oxygenize.AddSupport(CustomValueTypeName, () => 1);
-            var value = Oxygenize.ObtainValue(CustomValueTypeName);
-
-            Assert.IsTrue((int)value == 1);
-        }
-
-        public struct SupportedStruct
-        {
-            public override string ToString()
-            {
-                return CustomValueTypeName;
-            }
-        }
-
-        [Test]
         public void Should_Generate_An_Instance_For_Custom_Types()
         {
-            Oxygenize.AddSupport("Oxygenize.Test.TestClasses.CustomStruct", () => new CustomStruct
+            Oxygenize.Configure<CustomTypes>(configurator =>
             {
-                Id = 1
+                configurator.WithStrategy(GenerationStrategy.Random);
             });
 
-            var instance = Oxygenize.For<CustomTypes>().Instance;
+            var instance = Oxygenize.For<CustomTypes>();
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.GetType() == typeof(CustomTypes));
         }
 
         [Test]
+        public void Should_Generate_An_Instance_For_Custom_Types_With_Concrete_Value()
+        {
+            Oxygenize.Configure<CustomTypes>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+                configurator.Concrete<CustomStruct>(() => new CustomStruct { Id = 1 });
+            });
+
+            var instance = Oxygenize.For<CustomTypes>();
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.GetType() == typeof(CustomTypes));
+            Assert.IsTrue(instance.CustomStruct.Id == 1);
+        }
+
+        private class CustomTypes
+        {
+            public CustomStruct CustomStruct { get; set; }
+
+            public override string ToString()
+            {
+                return "Oxygenize.Test.CustomTypes";
+            }
+        }
+
+        [Test]
         public void Should_Generate_An_Instance_Of_Primitive_Arrays()
         {
-            var instance = Oxygenize.For<PrimitiveTypesArrays>()
-                            .UpperBound(500)
-                            .Instance;
+            Oxygenize.Configure<PrimitiveTypesArrays>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+                configurator.WithMaximumCapacity(500);
+            });
+
+            var instance = Oxygenize.For<PrimitiveTypesArrays>();
 
             Assert.IsNotNull(instance);
             Assert.IsNotNull(instance.Bools);
@@ -109,7 +136,12 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Generate_An_Instance_With_Decimal()
         {
-            var instance = Oxygenize.For<DecimalTestClass>().Instance;
+            Oxygenize.Configure<DecimalTestClass>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+            });
+
+            var instance = Oxygenize.For<DecimalTestClass>();
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.Decimal != 0);
@@ -120,7 +152,12 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Generate_An_Instance_With_Random_Enum_Value()
         {
-            var instance = Oxygenize.For<ClassWithEnums>().Instance;
+            Oxygenize.Configure<ClassWithEnums>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+            });
+
+            var instance = Oxygenize.For<ClassWithEnums>();
 
             TestEnum enumValue;
             Assert.IsNotNull(instance);
@@ -131,7 +168,12 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Generate_An_Instance_With_Non_Empty_Collections()
         {
-            var instance = Oxygenize.For<Collections>().Instance;
+            Oxygenize.Configure<Collections>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+            });
+
+            var instance = Oxygenize.For<Collections>();
 
             Assert.IsNotNull(instance);
             Assert.IsNotNull(instance.Ints);
@@ -152,7 +194,12 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Generate_An_Instance_With_String()
         {
-            var instance = Oxygenize.For<StringsClass>().Instance;
+            Oxygenize.Configure<StringsClass>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+            });
+
+            var instance = Oxygenize.For<StringsClass>();
 
             Assert.IsNotNull(instance);
             Assert.IsNotNull(instance.String);
@@ -170,9 +217,13 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Generate_An_Instance_With_String_Which_Can_Be_Null()
         {
-            var instance = Oxygenize.For<StringsClass>()
-                                    .NullableReferenceTypes(true)
-                                    .Instance;
+            Oxygenize.Configure<StringsClass>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+                configurator.WithNullableReferenceTypes(true);
+            });
+
+            var instance = Oxygenize.For<StringsClass>();
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.GetType() == typeof(StringsClass));
@@ -181,10 +232,24 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Generate_An_Instance_With_Reference_Types()
         {
-            Oxygenize.AddSupport(typeof(PrimitiveTypes).ToString(), () => Oxygenize.For<PrimitiveTypes>().Instance);
-            Oxygenize.AddSupport(typeof(Collections).ToString(), () => Oxygenize.For<Collections>().Instance);
+            Oxygenize.Configure<PrimitiveTypes>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+            });
 
-            var instance = Oxygenize.For<InstanceTypes>().Instance;
+            Oxygenize.Configure<Collections>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+            });
+
+            Oxygenize.Configure<InstanceTypes>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+                configurator.Concrete<PrimitiveTypes>();
+                configurator.Concrete<Collections>();
+            });
+
+            var instance = Oxygenize.For<InstanceTypes>();
 
             Assert.IsNotNull(instance);
             Assert.IsNotNull(instance.PrimitiveTypes);
@@ -202,12 +267,15 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Generate_Strings_Not_Exceeding_Given_Length()
         {
-            var instance = Oxygenize.For<StringArray>()
-                                    .UpperBound(100)
-                                    .MaxStringLength(100)
-                                    .MinStringLength(50)
-                                    .NullableReferenceTypes(false)
-                                    .Instance;
+            Oxygenize.Configure<StringArray>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+                configurator.WithMaximumCapacity(100);
+                configurator.WithMaxStringLength(100);
+                configurator.WithMinStringLength(50);
+            });
+
+            var instance = Oxygenize.For<StringArray>();
 
             Assert.IsTrue(instance.Strings.All(x => x.Length <= 100));
             Assert.IsTrue(instance.Strings.All(x => x.Length >= 50));
@@ -221,68 +289,57 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Execute_Selected_Constructor()
         {
-            var instance = Oxygenize.For<ConstructorsTest>()
-                                    .WithConstructor(new []{typeof(int), typeof(string)}, new object[]{2, "TESTTEST"})
-                                    .Instance;
+            Oxygenize.Configure<ConstructorsTest>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Random);
+                configurator.WithCtorParameters(new[] { typeof(int), typeof(string) }, new object[] { 2, "TESTTEST" });
+            });
+
+            var instance = Oxygenize.For<ConstructorsTest>();
 
             Assert.IsTrue(instance.Int == 2);
             Assert.IsTrue(instance.String == "TESTTEST");
-
-            var baseInstance = Oxygenize.For<ConstructorsTest>().Instance;
-            Assert.IsTrue(baseInstance.Int == 1);
-            Assert.IsTrue(baseInstance.String == "TEST");
         }
 
         [Test]
         public void Should_Create_An_Instance_With_Custom_Strategy()
         {
-            var instance = Oxygenize.For<PrimitiveTypes>()
-                                    .WithStrategy(GenerationStrategy.Custom)
-                                    .Configure()
-                                        .Prop(x => x.Bool)
-                                            .WithValue(true)
-                                            .Set()
-                                        .Prop(x => x.Int)
-                                            .WithValue(123)
-                                            .Set()
-                                        .Compile()
-                                    .Instance;
+            Oxygenize.Configure<PrimitiveTypes>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Custom);
+                configurator.WithValues((_) =>
+                {
+                    _.Bool = true;
+                    _.Int = 123;
+
+                    return _;
+                });
+            });
+
+            var instance = Oxygenize.For<PrimitiveTypes>();
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.Bool);
             Assert.IsTrue(instance.Int == 123);
-        }
-
-        [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "You cannot configure an instance for RandomGenerationStrategy.")]
-        public void Should_Throw_An_Exception_When_Trying_To_Configure_Properties_Using_Random_Strategy()
-        {
-            var instance = Oxygenize.For<PrimitiveTypes>()
-                                    .Configure()
-                                        .Prop(x => x.Bool)
-                                            .WithValue(true)
-                                            .Set()
-                                        .Prop(x => x.Int)
-                                            .WithValue(123)
-                                            .Set()
-                                        .Compile()
-                                    .Instance;
+            Assert.IsTrue(instance.Char == default(char));
         }
 
         [Test]
         public void Should_Create_An_Instance_With_Mixed_Strategy()
         {
-            var instance = Oxygenize.For<PrimitiveTypes>()
-                                    .WithStrategy(GenerationStrategy.Mixed)
-                                    .Configure()
-                                        .Prop(x => x.Bool)
-                                            .WithValue(true)
-                                            .Set()
-                                        .Prop(x => x.Int)
-                                            .WithValue(123)
-                                            .Set()
-                                        .Compile()
-                                    .Instance;
+            Oxygenize.Configure<PrimitiveTypes>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Mixed);
+                configurator.WithValues((_) =>
+                {
+                    _.Bool = true;
+                    _.Int = 123;
+
+                    return _;
+                });
+            });
+
+            var instance = Oxygenize.For<PrimitiveTypes>();
 
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.Bool);
@@ -303,64 +360,49 @@ namespace Oxygenize.Test
         [Test]
         public void Should_Create_An_Instance_With_Properties_Masks()
         {
-            var instance = Oxygenize.For<StringsClass>()
-                                    .WithStrategy(GenerationStrategy.Mixed)
-                                    .Configure()
-                                        .Prop(x => x.String)
-                                            .Mask("000")
-                                            .Set()
-                                        .Compile()
-                                    .Instance;
+            Oxygenize.Configure<StringsClass>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Mixed);
+                configurator.SetMaskFor(_ => _.String, "???-???", '?');
+            });
+
+            var instance = Oxygenize.For<StringsClass>();
 
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.String.Length == 3);
-        }
-
-        [Test]
-        [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Cannot set mask for the type other than string.")]
-        public void Should_Throw_An_Exception_When_Trying_To_Set_Mask_For_Other_Type_Than_String()
-        {
-            var instance = Oxygenize.For<PrimitiveTypes>()
-                                    .WithStrategy(GenerationStrategy.Mixed)
-                                    .Configure()
-                                        .Prop(x => x.Int)
-                                            .Mask("000")
-                                            .Set()
-                                        .Compile()
-                                    .Instance;
-
-            Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.Int.ToString().Length == 3);
+            Assert.IsTrue(instance.String.Length == 7);
         }
 
         [Test]
         public void Should_Create_An_Instance_With_Properties_Masks_And_Custom_Placeholder()
         {
-            var instance = Oxygenize.For<StringsClass>()
-                                    .WithStrategy(GenerationStrategy.Mixed)
-                                    .Configure()
-                                        .Prop(x => x.String)
-                                            .Mask("???-???", '?')
-                                            .Set()
-                                        .Compile()
-                                    .Instance;
+            Oxygenize.Configure<StringsClass>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Mixed);
+                configurator.SetMaskFor(_ => _.String, "***-***-***", '*');
+            });
+
+            var instance = Oxygenize.For<StringsClass>();
 
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.String.Length == 7);
+            Assert.IsTrue(instance.String.Length == 11);
             Assert.IsTrue(instance.String.Contains("-"));
         }
 
         [Test]
         public void Should_Create_An_Instance_Of_Poco()
         {
-            var instance = Oxygenize.For<EfPocoTest>()
-                                    .WithStrategy(GenerationStrategy.Mixed)
-                                        .Configure()
-                                            .Prop(x => x.Companies)
-                                                .WithValue(Enumerable.Empty<Company>().ToList())
-                                                .Set()
-                                            .Compile()
-                                    .Instance;
+            Oxygenize.Configure<EfPocoTest>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Mixed);
+                configurator.WithValues((_) =>
+                {
+                    _.Companies = Enumerable.Empty<Company>().ToList();
+
+                    return _;
+                });
+            });
+
+            var instance = Oxygenize.For<EfPocoTest>();
 
             Assert.IsNotNull(instance);
         }

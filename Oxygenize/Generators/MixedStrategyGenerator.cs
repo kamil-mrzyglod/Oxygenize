@@ -1,6 +1,8 @@
 ﻿namespace Oxygenize.Generators
 {
-    class MixedStrategyGenerator<T> : GeneratorBase<T> where T : new()
+    using System;
+
+    internal class MixedStrategyGenerator<T> : GeneratorBase<T> where T : new()
     {
         public MixedStrategyGenerator(Configuration configuration) : base(configuration)
         {
@@ -9,7 +11,7 @@
         protected override T Generate()
         {
             SetProperties();
-            return Instance;
+            return base.Generate();
         }
 
         protected override void SetProperties()

@@ -1,73 +1,42 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Globalization;
-using System.Linq.Expressions;
-using Oxygenize.Generators;
-
-namespace Oxygenize
+﻿namespace Oxygenize
 {
+    using System;
+    using System.Collections.Concurrent;
+
+    using Generators;
+
     public class Oxygenize
     {
-        private static readonly ConcurrentDictionary<string, Func<object>> SupportedTypes = new ConcurrentDictionary<string, Func<object>>(); 
-
-        public static Oxygenize<T> For<T>() where T : new()
-        {
-            return new Oxygenize<T>();
-        }
+        private static readonly ConcurrentDictionary<Type, Delegate> Configurations = new ConcurrentDictionary<Type, Delegate>();
 
         /// <summary>
-        /// Adds support for given custom type, which enables
-        /// RandomStrategyGenerator to generate given value
+        /// Pass configuration which should be used when populating data
         /// </summary>
-        /// <param name="typeName">Type ToString() representation</param>
-        /// <param name="valueToObtain">Function which will be used to obtain random value</param>
-        public static void AddSupport(string typeName, Func<object> valueToObtain)
+        public static void Configure<T>(Action<Configurator<T>> configuration) where T : new()
         {
-            SupportedTypes.AddOrUpdate(typeName, valueToObtain, (s, func) => valueToObtain);
+            Configurations.AddOrUpdate(typeof(T), configuration, (type, @delegate) => configuration);
         }
-
-        internal static object ObtainValue(string typeName)
-        {
-            Func<object> valueToObtain;
-            if (!SupportedTypes.TryGetValue(typeName, out valueToObtain))
-            {
-                throw new ArgumentException(string.Format("Cannot obtain a value of unregistered {0} type.", typeName), "typeName");
-            }
-
-            return valueToObtain.Invoke();
-        }
-    }
-
-    public class Oxygenize<T> where T : new()
-    {
-        private readonly PropertyConfigurator<T> _configurator; 
-
-        private GenerationStrategy _strategy = GenerationStrategy.Random;
-        private int _arrayUpperBound = 1000;
-        private bool _nullableReferenceTypes;
-        private int _maxStringLength = 4000;
-        private int _minStringLength;
-        private Tuple<Type[], object[]> _constructorParameters;
-
-        internal Oxygenize()
-        {
-            _configurator = new PropertyConfigurator<T>(this);
-        }   
-
+        
         /// <summary>
-        /// Returns an instance of the given type
+        /// Get an instance with populated data
         /// </summary>
-        public T Instance
+        public static T For<T>() where T : new()
         {
-            get { return PopulateData(); }
+            Delegate configuration;
+            if(Configurations.TryGetValue(typeof(T), out configuration) == false)
+                throw new ArgumentException();
+
+            var configurator = new Configurator<T>();
+            ((Action<Configurator<T>>)configuration)(configurator);
+
+            var instance = PopulateData<T>(configurator.Configuration);
+            return instance;
         }
 
-        private T PopulateData()
+        private static T PopulateData<T>(Configuration configuration) where T : new()
         {
-            var configuration = new Configuration(_arrayUpperBound, _nullableReferenceTypes, _maxStringLength, _minStringLength, _constructorParameters, _configurator.PropertyConfigurations);
-
             T instance;
-            switch (_strategy)
+            switch (configuration.Strategy)
             {
                 case GenerationStrategy.Mixed:
                     instance = new MixedStrategyGenerator<T>(configuration).GetData();
@@ -84,181 +53,7 @@ namespace Oxygenize
             }
 
             return instance;
-        }
-
-        /// <summary>
-        /// Sets the strategy used for data generation
-        /// </summary>
-        public Oxygenize<T> WithStrategy(GenerationStrategy strategy = GenerationStrategy.Random)
-        {
-            _strategy = strategy;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets upper bound for arrays generation
-        /// </summary>
-        public Oxygenize<T> UpperBound(int upperBound)
-        {
-            _arrayUpperBound = upperBound;
-            return this;
-        }
-
-        /// <summary>
-        /// Determines whether reference types can be generated as null
-        /// </summary>
-        public Oxygenize<T> NullableReferenceTypes(bool areNullable)
-        {
-            _nullableReferenceTypes = areNullable;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets maximum length of a generated string
-        /// </summary>
-        public Oxygenize<T> MaxStringLength(int maxLength)
-        {
-            _maxStringLength = maxLength;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets minimal length of a generated string
-        /// </summary>
-        public Oxygenize<T> MinStringLength(int minLength)
-        {
-            _minStringLength = minLength;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets a constructor which should be called when creating an instance
-        /// </summary>
-        /// <param name="types">Parameters types</param>
-        /// <param name="values">Parameters values</param>
-        public Oxygenize<T> WithConstructor(Type[] types, object[] values)
-        {
-            _constructorParameters = new Tuple<Type[], object[]>(types, values);
-            return this;
-        }
-
-        /// <summary>
-        /// Returns a PropertyConfigurator, which can be used to configure
-        /// properties using CustomGenerationStrategy
-        /// </summary>
-        public PropertyConfigurator<T> Configure()
-        {
-            if(_strategy == GenerationStrategy.Random)
-                throw new InvalidOperationException("You cannot configure an instance for RandomGenerationStrategy.");
-
-            return _configurator;
-        }  
-    }
-
-    public class PropertyConfigurator<T> where T : new()
-    {
-        private readonly Oxygenize<T> _oxygenize;
-        internal readonly ConcurrentDictionary<string, PropertyConfiguration> PropertyConfigurations = new ConcurrentDictionary<string, PropertyConfiguration>(); 
-
-        internal PropertyConfigurator(Oxygenize<T> oxygenize)
-        {
-            _oxygenize = oxygenize;
-        }
-
-        /// <summary>
-        /// Sets the specific property configurator
-        /// </summary>
-        public SpecificPropertyConfigurator<T, TProp> Prop<TProp>(Expression<Func<T, TProp>> expression)
-        {
-            MemberExpression me;
-            switch (expression.Body.NodeType)
-            {
-                case ExpressionType.Convert:
-                case ExpressionType.ConvertChecked:
-                    var ue = expression.Body as UnaryExpression;
-                    me = ((ue != null) ? ue.Operand : null) as MemberExpression;
-                    break;
-                default:
-                    me = expression.Body as MemberExpression;
-                    break;
-
-            }
-
-            return new SpecificPropertyConfigurator<T, TProp>(this, me);
-        }
-
-        /// <summary>
-        /// Finishes configuration
-        /// </summary>
-        public Oxygenize<T> Compile()
-        {
-            return _oxygenize;;
-        } 
-    }
-
-    internal class PropertyConfiguration
-    {
-        public readonly object Value;
-
-        public readonly string Mask;
-
-        public readonly char Placeholder;
-
-        public PropertyConfiguration(object value, string mask, char placeholder)
-        {
-            Value = value;
-            Mask = mask;
-            Placeholder = placeholder;
-        }
-    }
-
-    public class SpecificPropertyConfigurator<T, TProp> where T : new()
-    {
-        private readonly PropertyConfigurator<T> _propertyConfigurator;
-        private readonly MemberExpression _expression;
-
-        private object _value;
-        private string _mask;
-        private char _placeholder;
-
-        internal SpecificPropertyConfigurator(PropertyConfigurator<T> propertyConfigurator, MemberExpression expression)
-        {
-            _propertyConfigurator = propertyConfigurator;
-            _expression = expression;
-        }
-
-        /// <summary>
-        /// Sets a property value
-        /// </summary>
-        public SpecificPropertyConfigurator<T, TProp> WithValue(TProp value)
-        {
-            _value = value;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets a property mask. Note it can be used only with `string` property.
-        /// </summary>
-        public SpecificPropertyConfigurator<T, TProp> Mask(string mask, char placeholder = '\0')
-        {
-            if (typeof (TProp) != typeof(string))
-            {
-                throw new InvalidOperationException("Cannot set mask for the type other than string.");
-            }
-
-            _mask = mask;
-            _placeholder = placeholder;
-            return this;
-        }
-
-        /// <summary>
-        /// Saves the property configuration and allows for further method chain
-        /// </summary>
-        public PropertyConfigurator<T> Set()
-        {
-            _propertyConfigurator.PropertyConfigurations.AddOrUpdate(_expression.Member.Name, s => new PropertyConfiguration(_value, _mask, _placeholder), (info, val) => val);
-            return _propertyConfigurator;
-        } 
+        }   
     }
 
     public enum GenerationStrategy
