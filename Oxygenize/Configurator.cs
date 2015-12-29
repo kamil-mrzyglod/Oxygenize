@@ -1,7 +1,10 @@
-﻿namespace Oxygenize
+﻿using System.Linq;
+
+namespace Oxygenize
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq.Expressions;
     using System.Reflection;
 
@@ -134,6 +137,17 @@
 
             Configuration.Placeholder = placeholder;
             Configuration.Masks.Add(((PropertyInfo)me.Member).PropertyType.MetadataToken, mask);
+        }
+
+        /// <summary>
+        /// Allows to set a mask using one from the predefinied ones 
+        /// </summary>
+        public void SetMaskFor(Expression<Func<T, string>> expression, Masks mask)
+        {
+            var type = mask.GetType();
+            var memInfo = type.GetMember(mask.ToString());
+            var desc = ((DescriptionAttribute)memInfo[0].GetCustomAttributes(typeof (DescriptionAttribute), false).First()).Description;
+            SetMaskFor(expression, desc, '?');
         }
     }
 

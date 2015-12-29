@@ -1,4 +1,6 @@
-﻿namespace Oxygenize.Test
+﻿using System.Text.RegularExpressions;
+
+namespace Oxygenize.Test
 {
     using System;
     using System.Collections.Generic;
@@ -405,6 +407,22 @@
             var instance = Oxygenize.For<EfPocoTest>();
 
             Assert.IsNotNull(instance);
+        }
+
+        [Test]
+        public void Should_Create_An_Instance_With_Predefinied_Mask()
+        {
+            Oxygenize.Configure<StringsClass>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Mixed);
+                configurator.SetMaskFor(_ => _.String, Masks.PostalCode_Andorra);
+            });
+
+            var instance = Oxygenize.For<StringsClass>();
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.String.Length == 5);
+            Assert.IsTrue(Regex.IsMatch(instance.String, "AD[a-zA-Z0-9]{3}"));
         }
     }
 }
