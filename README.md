@@ -94,3 +94,33 @@ Oxygenize.Configure<MyType>(configurator =>
 
 var instance = Oxygenize.For<StringArray>();
 ```
+
+## Usage with test frameworks
+Oxygenize can be used to generate a batch for your tests(either by recreating data for each run or saving it and loading on your own). There is also an easy way to feed your tests with a collection of different test cases using ```GenerateCases<T>(int numberOfCases)``` method:
+
+###NUnit
+```
+[TestCaseSource("TestCases")]
+public void Should_Create_Test_Cases_With_Proper_Value(PrimitiveTypes type)
+{
+    Assert.IsTrue(type.Int == 666);
+}
+
+private static IEnumerable<PrimitiveTypes> TestCases()
+{
+    Oxygenize.Configure<PrimitiveTypes>(configurator =>
+    {
+        configurator.WithStrategy(GenerationStrategy.Mixed);
+        configurator.WithValues((_) =>
+        {
+            _.Int = 666;
+
+            return _;
+        });
+    });
+
+    return Oxygenize.GenerateCases<PrimitiveTypes>(10);
+}
+```
+
+Note that above solution should work with each framework, which supports passing method's result as a parameter.
