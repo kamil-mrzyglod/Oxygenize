@@ -1,4 +1,6 @@
-﻿namespace Oxygenize
+﻿using System.Collections.Generic;
+
+namespace Oxygenize
 {
     using System;
     using System.Collections.Concurrent;
@@ -53,7 +55,19 @@
             }
 
             return instance;
-        }   
+        }
+
+        /// <summary>
+        /// Generates given number of cases, which can be 
+        /// used as a source of test cases
+        /// </summary>
+        public static IEnumerable<T> GenerateCases<T>(int numberOfCases) where T : new()
+        {
+            for (var i = 0; i < numberOfCases; i++)
+            {
+                yield return For<T>();
+            }
+        }
     }
 
     public enum GenerationStrategy

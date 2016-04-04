@@ -1,6 +1,6 @@
 namespace Oxygenize.Test.TestClasses
 {
-    class PrimitiveTypes
+    internal class PrimitiveTypes
     {
         public bool Bool { get; set; }
 
