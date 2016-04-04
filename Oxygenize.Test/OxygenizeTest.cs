@@ -8,7 +8,7 @@
 
     using TestClasses;
 
-    public class OxygenizeTest
+    internal class OxygenizeTest
     {
         [Test]
         public void GivenPrimitiveType_ShouldGenerateIt()
@@ -405,6 +405,28 @@
             var instance = Oxygenize.For<EfPocoTest>();
 
             Assert.IsNotNull(instance);
+        }
+
+        [TestCaseSource("TestCases")]
+        public void Should_Create_Test_Cases_With_Proper_Value(PrimitiveTypes type)
+        {
+            Assert.IsTrue(type.Int == 666);
+        }
+
+        private static IEnumerable<PrimitiveTypes> TestCases()
+        {
+            Oxygenize.Configure<PrimitiveTypes>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Custom);
+                configurator.WithValues((_) =>
+                {
+                    _.Int = 666;
+
+                    return _;
+                });
+            });
+
+            return Oxygenize.GenerateCases<PrimitiveTypes>(10);
         }
     }
 }
