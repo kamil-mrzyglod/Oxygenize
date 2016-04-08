@@ -8,7 +8,7 @@ Oxygenize is a small library, that helps you populate data to your classes and s
 * `GenerationStrategy.Custom`
 * `GenerationStrategy.Mixed`
 
-## Installation
+## Installation [![NuGet Status](https://img.shields.io/nuget/v/Oxygenize.svg?style=flat)](https://www.nuget.org/packages/Oxygenize/)
 Oxygenize can be installed using NuGet Packages Manager:
 
 ```Install-Package Oxygenize```
