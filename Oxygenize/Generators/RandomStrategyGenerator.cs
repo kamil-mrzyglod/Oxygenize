@@ -31,18 +31,18 @@
                 Func<object> valueGetter;
                 var value = Configuration.Concretes.TryGetValue(property.PropertyType.ToString(), out valueGetter) ? 
                                    valueGetter.Invoke() : 
-                                   GetRandomValue(property.PropertyType);
+                                   GetRandomValue(property.PropertyType, property.Name);
                 
                 property.SetValue(Instance, value, null);
             }
         }
 
-        internal static object GetRandomPropertyValue(Type propertyType, Configuration configuration)
+        internal static object GetRandomPropertyValue(Type propertyType, string name, Configuration configuration)
         {
-            return new RandomStrategyGenerator<T>(configuration).GetRandomValue(propertyType);
+            return new RandomStrategyGenerator<T>(configuration).GetRandomValue(propertyType, name);
         }
 
-        private object GetRandomValue(Type propertyType, bool cannotBeNull = false)
+        private object GetRandomValue(Type propertyType, string name, bool cannotBeNull = false)
         {
             if (propertyType.IsPrimitive)
             {
@@ -62,12 +62,12 @@
 
             if (propertyType.IsGenericType)
             {
-                return GetGenericTypeValue(propertyType);
+                return GetGenericTypeValue(propertyType, name);
             }
 
             if (propertyType.IsArray)
             {
-                return GenerateArray(propertyType);
+                return GenerateArray(propertyType, name);
             }
 
             if (propertyType.IsValueType)
@@ -75,20 +75,20 @@
                 return GetValueType(propertyType);
             }
 
-            return GetReferenceTypeValue(propertyType, cannotBeNull);
+            return GetReferenceTypeValue(propertyType, name, cannotBeNull);
         }
 
-        private object GetReferenceTypeValue(Type propertyType, bool cannotBeNull = false)
+        private object GetReferenceTypeValue(Type propertyType, string name, bool cannotBeNull = false)
         {
             if (Configuration.NullableReferenceTypes && !cannotBeNull)
             {
-                return Randomizer.ShouldEnter() ? GetRandomReferenceTypeValue(propertyType) : null;
+                return Randomizer.ShouldEnter() ? GetRandomReferenceTypeValue(propertyType, name) : null;
             }
 
-            return GetRandomReferenceTypeValue(propertyType);
+            return GetRandomReferenceTypeValue(propertyType, name);
         }
 
-        private object GetRandomReferenceTypeValue(Type propertyType)
+        private object GetRandomReferenceTypeValue(Type propertyType, string name)
         {
             var randomizer = new Randomizer().Instance;
 
@@ -96,47 +96,85 @@
             {
                 case "System.String":
                     string mask;
-                    if (Configuration.Masks.TryGetValue(propertyType.MetadataToken, out mask))
+                    if (Configuration.Masks.TryGetValue(name, out mask))
                     {
-                        var sb = new StringBuilder();
-                        foreach (var placeholder in mask)
-                        {
-                            if (placeholder == Configuration.Placeholder)
-                            {
-                                sb.Append(GetRandomPrimitiveValue(typeof(char)));
-                            }
-                            else
-                            {
-                                sb.Append(placeholder);
-                            }
-                        }
-
-                        return sb.ToString(0, mask.Length);
+                        return GenerateStringBasedOnMask(mask);
                     }
 
-                    return new string(Enumerable.Repeat(Chars, randomizer.Next(Configuration.MinStringLength, Configuration.MaximumStringLength)).Select(s => s[randomizer.Next(s.Length)]).ToArray());
+                    FieldType fieldType;
+                    return Configuration.FieldTypes.TryGetValue(name, out fieldType)
+                        ? GenerateStringBasedOnType(fieldType, randomizer)
+                        : new string(
+                            Enumerable.Repeat(Chars,
+                                randomizer.Next(Configuration.MinStringLength, Configuration.MaximumStringLength))
+                                .Select(s => s[randomizer.Next(s.Length)])
+                                .ToArray());
 
                 default:
                     return null;
             }
         }
 
-        private object GetGenericTypeValue(Type propertyType)
+        private static object GenerateStringBasedOnType(FieldType fieldType, Random randomizer)
+        {
+            string result;
+            switch (fieldType)
+            {
+                case FieldType.Name:
+                    result = Data.Names[randomizer.Next(0, Data.Names.Length - 1)];
+                    break;
+                case FieldType.Surname:
+                    result = Data.Surnames[randomizer.Next(0, Data.Names.Length - 1)];
+                    break;
+                case FieldType.NameAndSurname:
+                    result = Data.Names[randomizer.Next(0, Data.Names.Length - 1)] + " " +
+                             Data.Surnames[randomizer.Next(0, Data.Names.Length - 1)];
+                    break;
+                case FieldType.SurnameAndName:
+                    result = Data.Surnames[randomizer.Next(0, Data.Names.Length - 1)] + " " +
+                             Data.Names[randomizer.Next(0, Data.Names.Length - 1)];
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return result;
+        }
+
+        private object GenerateStringBasedOnMask(string mask)
+        {
+            var sb = new StringBuilder();
+            foreach (var placeholder in mask)
+            {
+                if (placeholder == Configuration.Placeholder)
+                {
+                    sb.Append(GetRandomPrimitiveValue(typeof(char)));
+                }
+                else
+                {
+                    sb.Append(placeholder);
+                }
+            }
+
+            return sb.ToString(0, mask.Length);
+        }
+
+        private object GetGenericTypeValue(Type propertyType, string name)
         {
             var randomizer = new Randomizer().Instance;
 
-            if (propertyType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
+            if (propertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
             {
                 var genericType = propertyType.GetGenericArguments()[0];
-                return GetRandomEnumerable(genericType, randomizer);
+                return GetRandomEnumerable(genericType, name, randomizer);
             }
 
             if (propertyType.GetGenericTypeDefinition() == typeof(ICollection<>) || propertyType.GetGenericTypeDefinition() == typeof(IList<>))
             {
                 var genericType = propertyType.GetGenericArguments()[0];
-                var methodInfo = GetRandomEnumerable(genericType, randomizer);
+                var methodInfo = GetRandomEnumerable(genericType, name, randomizer);
 
-                return typeof(Enumerable).GetMethod("ToList").MakeGenericMethod(genericType).Invoke(null, new object[] { methodInfo });
+                return typeof(Enumerable).GetMethod("ToList").MakeGenericMethod(genericType).Invoke(null, new object[] {methodInfo});
             }
 
             if (propertyType.GetGenericTypeDefinition() == typeof(IDictionary<,>))
@@ -149,7 +187,7 @@
                 var addMethod = dictionaryType.GetMethod("Add");
                 for (var i = 0; i <= randomizer.Next(Configuration.MaxCapacity); i++)
                 {
-                    addMethod.Invoke(dictionaryInstance, new[] { GetRandomValue(keyType, true), GetRandomValue(valueType) });
+                    addMethod.Invoke(dictionaryInstance, new[] {GetRandomValue(keyType, name, true), GetRandomValue(valueType, name) });
                 }
 
                 return dictionaryInstance;
@@ -158,12 +196,10 @@
             return new object();
         }
 
-        private IEnumerable GetRandomEnumerable(Type genericType, Random randomizer)
+        private IEnumerable GetRandomEnumerable(Type genericType, string name, Random randomizer)
         {
-            var enumerable = Enumerable.Range(0, randomizer.Next(Configuration.MaxCapacity)).Select(x => GetRandomValue(genericType));
-            var methodInfo = typeof (Enumerable).GetMethod("Cast")
-                .MakeGenericMethod(genericType)
-                .Invoke(null, new object[] {enumerable}) as IEnumerable;
+            var enumerable = Enumerable.Range(0, randomizer.Next(Configuration.MaxCapacity)).Select(x => GetRandomValue(genericType, name));
+            var methodInfo = typeof(Enumerable).GetMethod("Cast").MakeGenericMethod(genericType).Invoke(null, new object[] {enumerable}) as IEnumerable;
             return methodInfo;
         }
 
@@ -171,16 +207,16 @@
         {
             var values = Enum.GetValues(propertyType);
             var randomizer = new Randomizer().Instance;
-            return (Enum)values.GetValue(randomizer.Next(values.Length));
+            return (Enum) values.GetValue(randomizer.Next(values.Length));
         }
 
-        private Array GenerateArray(Type propertyType)
+        private Array GenerateArray(Type propertyType, string name)
         {
             var elementType = propertyType.GetElementType();
             var randomizer = new Randomizer().Instance;
 
             var array = Array.CreateInstance(elementType, randomizer.Next(1, Configuration.MaxCapacity));
-            var value = Enumerable.Range(0, array.Length).Select(x => GetRandomValue(elementType)).ToArray();
+            var value = Enumerable.Range(0, array.Length).Select(x => GetRandomValue(elementType, name)).ToArray();
             Array.Copy(value, array, value.Length);
 
             return array;
@@ -282,7 +318,7 @@
             {
                 case "System.DateTime":
                     var range = DateTime.MaxValue - DateTime.MinValue;
-                    var randTimeSpan = new TimeSpan((long)(randomizer.NextDouble() * range.Ticks));
+                    var randTimeSpan = new TimeSpan((long) (randomizer.NextDouble()*range.Ticks));
                     value = DateTime.MinValue + randTimeSpan;
                     break;
                 case "System.Guid":

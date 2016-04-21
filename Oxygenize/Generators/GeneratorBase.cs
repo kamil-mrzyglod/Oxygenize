@@ -56,7 +56,9 @@
 
         protected void SetProperty(PropertyInfo property)
         {
-            property.SetValue(Instance, RandomStrategyGenerator<T>.GetRandomPropertyValue(property.PropertyType, Configuration), null);
+            property.SetValue(Instance,
+                RandomStrategyGenerator<T>.GetRandomPropertyValue(property.PropertyType, property.Name, Configuration),
+                null);
         }
     }
 }

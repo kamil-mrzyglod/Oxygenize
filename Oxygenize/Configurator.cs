@@ -106,6 +106,28 @@
             Configuration.ValueGetter = func;
         }
 
+        public void WithFieldType(Expression<Func<T, string>> expression, FieldType fieldType)
+        {
+            if (expression == null)
+                throw new ArgumentNullException("expression");
+
+            MemberExpression me;
+            switch (expression.Body.NodeType)
+            {
+                case ExpressionType.Convert:
+                case ExpressionType.ConvertChecked:
+                    var ue = expression.Body as UnaryExpression;
+                    me = ((ue != null) ? ue.Operand : null) as MemberExpression;
+                    break;
+                default:
+                    me = expression.Body as MemberExpression;
+                    break;
+
+            }
+
+            Configuration.FieldTypes.Add(((PropertyInfo)me.Member).Name, fieldType);
+        }
+
         /// <summary>
         /// Allows to set a mask which will be used when generating
         /// value for the selected property
@@ -133,7 +155,7 @@
             }
 
             Configuration.Placeholder = placeholder;
-            Configuration.Masks.Add(((PropertyInfo)me.Member).PropertyType.MetadataToken, mask);
+            Configuration.Masks.Add(((PropertyInfo)me.Member).Name, mask);
         }
     }
 
@@ -142,7 +164,8 @@
         private readonly Type _type;
 
         internal readonly IDictionary<string, Func<object>> Concretes = new Dictionary<string, Func<object>>();
-        internal readonly IDictionary<int, string> Masks = new Dictionary<int, string>();
+        internal readonly IDictionary<string, string> Masks = new Dictionary<string, string>();
+        internal readonly IDictionary<string, FieldType> FieldTypes = new Dictionary<string, FieldType>();
 
         public GenerationStrategy Strategy;
         public int MaxCapacity = 1000;

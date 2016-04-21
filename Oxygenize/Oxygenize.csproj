@@ -35,6 +35,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configurator.cs" />
+    <Compile Include="Data.cs" />
+    <Compile Include="FieldType.cs" />
     <Compile Include="Generators\CustomStrategyGenerator.cs" />
     <Compile Include="Generators\GeneratorBase.cs" />
     <Compile Include="Generators\MixedStrategyGenerator.cs" />

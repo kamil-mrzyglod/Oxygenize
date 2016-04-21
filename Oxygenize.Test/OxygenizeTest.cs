@@ -1,4 +1,6 @@
-﻿namespace Oxygenize.Test
+﻿using System.Text.RegularExpressions;
+
+namespace Oxygenize.Test
 {
     using System;
     using System.Collections.Generic;
@@ -427,6 +429,21 @@
             });
 
             return Oxygenize.GenerateCases<PrimitiveTypes>(10);
+        }
+
+        [Test]
+        public void Should_Create_An_Instance_With_Typed_Fields()
+        {
+            Oxygenize.Configure<StringsClass>(configurator =>
+            {
+                configurator.WithStrategy(GenerationStrategy.Mixed);
+                configurator.WithFieldType(_ => _.String, FieldType.NameAndSurname);
+            });
+
+            var instance = Oxygenize.For<StringsClass>();
+
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(Regex.IsMatch(instance.String, @"[a-zA-Z]{0,} [a-zA-Z]{0,}", RegexOptions.Compiled | RegexOptions.IgnoreCase));
         }
     }
 }
